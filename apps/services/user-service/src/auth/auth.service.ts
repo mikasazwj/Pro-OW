@@ -50,11 +50,8 @@ export class AuthService {
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!valid) throw new UnauthorizedException('邮箱或密码错误');
 
-    if (user.mutedUntil && new Date(user.mutedUntil) > new Date()) {
-      throw new UnauthorizedException('账号已被禁言至 ' + user.mutedUntil);
-    }
-
-    const payload = { sub: user.id, username: user.username, nickname: user.nickname, role: user.role };
+    
+    const payload = { sub: user.id, username: user.username, nickname: user.nickname, role: user.role, status: user.status, mutedUntil: user.mutedUntil };
     const accessToken = this.jwtService.sign(payload, { expiresIn: '900s' });
     const refreshToken = uuidv4();
     this.db.prepare('INSERT INTO refresh_tokens (id, userId, token, expiresAt) VALUES (?, ?, ?, ?)').run(
@@ -78,7 +75,7 @@ export class AuthService {
       uuidv4(), user.id, newRefresh, new Date(Date.now() + 7 * 86400000).toISOString()
     );
 
-    const payload = { sub: user.id, username: user.username, nickname: user.nickname, role: user.role };
+    const payload = { sub: user.id, username: user.username, nickname: user.nickname, role: user.role, status: user.status, mutedUntil: user.mutedUntil };
     const accessToken = this.jwtService.sign(payload, { expiresIn: '900s' });
     return { accessToken, refreshToken: newRefresh, expiresIn: 900 };
   }

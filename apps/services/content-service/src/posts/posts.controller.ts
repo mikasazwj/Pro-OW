@@ -51,7 +51,9 @@ export class PostsController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  createPost(@Body() dto: CreatePostDto, @Req() req: { user: { userId: string; username: string; nickname: string | null } }): ApiResponse {
+  createPost(@Body() dto: CreatePostDto, @Req() req: { user: { userId: string; username: string; nickname: string | null; role: string; status: string; mutedUntil: string | null } }): ApiResponse {
+    if (req.user.status === 'banned') return { code: 40300, message: '账号已被封禁', data: null };
+    if (req.user.mutedUntil && new Date(req.user.mutedUntil) > new Date()) return { code: 40300, message: '账号已被禁言至 ' + req.user.mutedUntil, data: null };
     if (!checkRateLimit(req.user.userId, 'createPost', 2, 60000)) return { code: 42900, message: '发帖太频繁，请1分钟后再试', data: null };
     const board = this.db.prepare('SELECT id FROM boards WHERE id = ?').get(dto.boardId);
     if (!board) return { code: 40400, message: '板块不存在', data: null };

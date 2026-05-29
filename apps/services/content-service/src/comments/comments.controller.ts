@@ -34,7 +34,7 @@ export class CommentsController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  createComment(@Param('postId') postId: string, @Body() dto: CreateCommentDto, @Req() req: { user: { userId: string; username: string; nickname: string | null } }): ApiResponse {
+  createComment(@Param('postId') postId: string, @Body() dto: CreateCommentDto, @Req() req: { user: { userId: string; username: string; nickname: string | null; role: string; status: string; mutedUntil: string | null } }): ApiResponse {
     if (!checkRateLimit(req.user.userId, 'createComment', 5, 60000)) return { code: 42900, message: '评论太频繁，请稍后再试', data: null };
     const post = this.db.prepare('SELECT id FROM posts WHERE id = ?').get(postId);
     if (!post) return { code: 40400, message: '帖子不存在', data: null };
