@@ -88,6 +88,10 @@ export class AuthService {
 
   // Admin/mod: mute user
   async muteUser(targetUserId: string, hours: number) {
+    if (hours <= 0) {
+      this.db.prepare("UPDATE users SET mutedUntil = NULL WHERE id = ?").run(targetUserId);
+      return { userId: targetUserId, mutedUntil: null };
+    }
     const until = new Date(Date.now() + hours * 3600000).toISOString();
     this.db.prepare('UPDATE users SET mutedUntil = ? WHERE id = ?').run(until, targetUserId);
     return { userId: targetUserId, mutedUntil: until };
