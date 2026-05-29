@@ -1,12 +1,40 @@
 const USER_API = 'http://localhost:3001/api/v1';
 const CONTENT_API = 'http://localhost:3002/api/v1';
 
-async function request<T>(baseUrl: string, endpoint: string, options?: RequestInit): Promise<T> {
+let isRefreshing = false;
+let refreshPromise: Promise<string | null> | null = null;
+
+async function tryRefreshToken(): Promise<string | null> {
+  const rt = localStorage.getItem('refreshToken');
+  if (!rt) return null;
+  try {
+    const res = await fetch(USER_API + '/auth/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refreshToken: rt }) });
+    const json = await res.json();
+    if (!res.ok || json.code !== 0) return null;
+    localStorage.setItem('token', json.data.accessToken);
+    localStorage.setItem('refreshToken', json.data.refreshToken);
+    return json.data.accessToken;
+  } catch { return null; }
+}
+
+async function request<T>(baseUrl: string, endpoint: string, options?: RequestInit, retry = true): Promise<T> {
   const token = localStorage.getItem('token');
   const headers: Record<string, string> = { 'Content-Type': 'application/json', ...(options?.headers as Record<string, string>) };
   if (token) headers['Authorization'] = 'Bearer ' + token;
   const res = await fetch(baseUrl + endpoint, { ...options, headers });
   const json = await res.json();
+  
+  if (res.status === 401 && retry) {
+    if (!isRefreshing) {
+      isRefreshing = true;
+      refreshPromise = tryRefreshToken();
+    }
+    const newToken = await refreshPromise;
+    isRefreshing = false;
+    refreshPromise = null;
+    if (newToken) return request<T>(baseUrl, endpoint, options, false);
+  }
+  
   if (!res.ok || json.code !== 0) throw new Error(json.message || '请求失败');
   return json.data;
 }
@@ -28,6 +56,7 @@ export const userApi = {
 export const contentApi = {
   get: <T>(endpoint: string) => request<T>(CONTENT_API, endpoint),
   post: <T>(endpoint: string, body: unknown) => request<T>(CONTENT_API, endpoint, { method: 'POST', body: JSON.stringify(body) }),
+  delete: <T>(endpoint: string) => request<T>(CONTENT_API, endpoint, { method: 'DELETE' }),
 };
 
 export const socialApi = {
@@ -44,6 +73,8 @@ export const socialApi = {
   getFollowers: (userId: string) => request<{ items: { id: string; username: string }[] }>(CONTENT_API, '/follows/followers/' + userId),
   getFollowing: () => request<{ items: { id: string; username: string }[] }>(CONTENT_API, '/follows/following'),
   search: (q: string) => request<{ items: unknown[]; total: number }>(CONTENT_API, '/search?q=' + encodeURIComponent(q)),
+  deletePost: (id: string) => request<null>(CONTENT_API, '/posts/' + id, { method: 'DELETE' }),
+  deleteComment: (postId: string, commentId: string) => request<null>(CONTENT_API, '/posts/' + postId + '/comments/' + commentId, { method: 'DELETE' }),
 };
 
 export default api;

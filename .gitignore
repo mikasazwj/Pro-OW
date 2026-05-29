@@ -43,3 +43,6 @@ coverage/
 
 *.db-wal
 *.db-shm
+
+*.db-shm
+*.db-wal

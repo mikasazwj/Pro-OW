@@ -1,16 +1,9 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import api from '../lib/api';
 
-interface User {
-  id: string;
-  username: string;
-  avatarUrl: string | null;
-  role: string;
-}
-
+interface User { id: string; username: string; avatarUrl: string | null; role: string; }
 interface AuthContextType {
-  user: User | null;
-  token: string | null;
+  user: User | null; token: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, username: string, password: string) => Promise<void>;
   logout: () => void;
@@ -22,19 +15,34 @@ const AuthContext = createContext<AuthContextType | null>(null);
 function decodeJwt(token: string) {
   const base64Url = token.split('.')[1];
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  const json = decodeURIComponent(
-    atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
-  );
+  const json = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
   return JSON.parse(json);
 }
+
+function setStoredToken(accessToken: string, refreshToken: string) {
+  localStorage.setItem('token', accessToken);
+  localStorage.setItem('refreshToken', refreshToken);
+}
+
+async function tryRefreshToken(): Promise<string | null> {
+  const rt = localStorage.getItem('refreshToken');
+  if (!rt) return null;
+  try {
+    const data: { accessToken: string; refreshToken: string } = await api.post('/auth/refresh', { refreshToken: rt });
+    setStoredToken(data.accessToken, data.refreshToken);
+    return data.accessToken;
+  } catch { return null; }
+}
+
+export { tryRefreshToken };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
   const [user, setUser] = useState<User | null>(null);
 
   const login = useCallback(async (email: string, password: string) => {
-    const data: { accessToken: string } = await api.post('/auth/login', { email, password });
-    localStorage.setItem('token', data.accessToken);
+    const data: { accessToken: string; refreshToken: string } = await api.post('/auth/login', { email, password });
+    setStoredToken(data.accessToken, data.refreshToken);
     setToken(data.accessToken);
     const payload = decodeJwt(data.accessToken);
     setUser({ id: payload.sub, username: payload.username, avatarUrl: null, role: payload.role });
@@ -46,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     setToken(null);
     setUser(null);
   }, []);
