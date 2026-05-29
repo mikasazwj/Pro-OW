@@ -74,7 +74,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async muteUser(@Body() dto: MuteDto, @Req() req: { user: { role: string } }): Promise<ApiResponse> {
     if (req.user.role !== 'admin') return { code: 40300, message: '权限不足', data: null };
-    const result = await this.authService.muteUser(dto.userId, dto.hours ?? 24);
+    const result = await this.authService.muteUser(dto.userId, dto.hours !== undefined ? dto.hours : 24);
     return { code: 0, message: 'ok', data: result };
   }
 
