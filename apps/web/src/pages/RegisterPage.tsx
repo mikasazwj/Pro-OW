@@ -2,6 +2,13 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
+const s: Record<string, React.CSSProperties> = {
+  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary)' },
+  card: { width: 380, padding: 32, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8 },
+  input: { width: '100%', padding: '10px 14px', borderRadius: 6, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: 14, outline: 'none', marginBottom: 14 },
+  btn: { width: '100%', padding: '10px', borderRadius: 6, border: 'none', background: 'var(--blue)', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' },
+};
+
 export default function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -11,59 +18,35 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    if (password.length < 6) { setError('密码至少6位'); return; }
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault(); setError('');
+    if (password.length < 6) return setError('密码至少6位');
     setLoading(true);
-    try {
-      await register(username, email, password);
-      navigate('/login?registered=1');
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : '注册失败');
-    } finally { setLoading(false); }
+    try { await register(username, email, password); navigate('/login?registered=1'); }
+    catch (err: unknown) { setError(err instanceof Error ? err.message : '注册失败'); }
+    finally { setLoading(false); }
   };
 
   return (
-    <div className="min-h-screen bg-surface-root flex items-center justify-center px-4">
-      <div className="w-full max-w-md animate-scale-in">
-        <div className="text-center mb-8">
-          <Link to="/boards" className="inline-flex items-center gap-2">
-            <span className="text-3xl">🦾</span>
-            <h1 className="text-2xl font-bold text-brand-orange">Pro-OW</h1>
-          </Link>
-          <p className="text-text-muted text-sm mt-2">加入守望先锋玩家社区</p>
+    <div style={s.page}>
+      <div style={s.card}>
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--brand)', marginBottom: 4 }}>Pro-OW</h1>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>加入守望先锋玩家社区</p>
         </div>
 
-        <div className="card p-8">
-          <h2 className="text-xl font-bold text-text-primary mb-6 text-center">创建账号</h2>
+        {error && <div style={{ padding: '8px 12px', borderRadius: 6, background: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.3)', color: 'var(--red)', fontSize: 12, marginBottom: 14, textAlign: 'center' }}>{error}</div>}
 
-          {error && <div className="mb-4 p-3 bg-semantic-error/10 border border-semantic-error/30 rounded-xl text-sm text-semantic-error text-center">{error}</div>}
+        <form onSubmit={submit}>
+          <input style={s.input} type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="用户名" required />
+          <input style={s.input} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="邮箱" required />
+          <input style={s.input} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="密码（至少6位）" required />
+          <button type="submit" disabled={loading} style={{ ...s.btn, opacity: loading ? 0.5 : 1 }}>{loading ? '注册中...' : '注册'}</button>
+        </form>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">用户名</label>
-              <input type="text" value={username} onChange={e => setUsername(e.target.value)}
-                placeholder="你的游戏ID" className="input-field" required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">邮箱</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-                placeholder="your@email.com" className="input-field" required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">密码</label>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-                placeholder="至少6位" className="input-field" required />
-            </div>
-            <button type="submit" disabled={loading}
-              className="btn-primary w-full py-3 mt-2 bg-brand-blue hover:bg-brand-blue-light">{loading ? '注册中...' : '注册'}</button>
-          </form>
-
-          <p className="text-center mt-6 text-sm text-text-muted">
-            已有账号？<Link to="/login" className="text-brand-orange hover:underline font-medium">登录</Link>
-          </p>
-        </div>
+        <p style={{ textAlign: 'center', marginTop: 16, fontSize: 13, color: 'var(--text-muted)' }}>
+          已有账号？<Link to="/login" style={{ color: 'var(--brand)', textDecoration: 'none' }}>登录</Link>
+        </p>
       </div>
     </div>
   );

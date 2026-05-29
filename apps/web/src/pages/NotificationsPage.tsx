@@ -13,32 +13,30 @@ export default function NotificationsPage() {
   }, []);
 
   return (
-    <div className="animate-fade-in max-w-2xl mx-auto px-4 lg:px-8 py-6">
-      <h1 className="text-2xl font-bold text-text-primary mb-6">🔔 通知中心</h1>
+    <div style={{ maxWidth: 640, margin: '0 auto' }}>
+      <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20 }}>通知中心</h1>
 
       {notifs.length === 0 ? (
-        <div className="flex flex-col items-center py-20 gap-3">
-          <span className="text-4xl">🔕</span>
-          <p className="text-text-secondary font-medium">暂无通知</p>
-          <p className="text-text-muted text-sm">当有人回复你的帖子时会在这里显示</p>
-        </div>
+        <div style={{ textAlign: 'center', padding: 64, color: 'var(--text-muted)' }}>暂无通知</div>
       ) : (
-        <div className="space-y-2">
-          {notifs.map(n => (
-            <Link key={n.id} to={n.sourceType === 'post' ? '/post/' + n.sourceId : '/boards'}
-              className={'card block p-4 transition-all duration-200 ' + (n.isRead ? 'opacity-60 hover:opacity-100' : 'border-l-2 border-l-brand-orange')}>
-              <div className="flex items-start gap-3">
-                <span className="text-xl mt-0.5">{n.isRead ? '📬' : '📨'}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-text-primary">{n.title}</p>
-                  <p className="text-xs text-text-muted mt-1">{n.content}</p>
-                  <p className="text-2xs text-text-muted mt-2">{new Date(n.createdAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-                </div>
-                {!n.isRead && <span className="w-2 h-2 rounded-full bg-brand-orange flex-shrink-0 mt-2" />}
+        notifs.map(n => (
+          <Link key={n.id} to={n.sourceType === 'post' ? '/post/' + n.sourceId : '/boards'}
+            style={{
+              display: 'block', padding: '16px 20px', background: 'var(--bg-card)', border: '1px solid var(--border)',
+              borderRadius: 8, marginBottom: 8, textDecoration: 'none', color: 'inherit',
+              opacity: n.isRead ? 0.6 : 1, borderLeft: n.isRead ? '1px solid var(--border)' : '3px solid var(--brand)',
+            }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+              <span style={{ fontSize: 18 }}>{n.isRead ? '📬' : '📨'}</span>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{n.title}</div>
+                <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{n.content}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>{new Date(n.createdAt).toLocaleDateString('zh-CN')}</div>
               </div>
-            </Link>
-          ))}
-        </div>
+              {!n.isRead && <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)', flexShrink: 0, marginTop: 6 }} />}
+            </div>
+          </Link>
+        ))
       )}
     </div>
   );

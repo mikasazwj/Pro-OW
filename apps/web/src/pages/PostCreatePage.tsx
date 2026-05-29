@@ -1,15 +1,17 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { contentApi } from '../lib/api';
 
-const BOARDS = [
-  { id: 'b1', name: '综合讨论', icon: '💬' },
-  { id: 'b2', name: '英雄攻略', icon: '⚔️' },
-  { id: 'b3', name: '赛事资讯', icon: '🏆' },
-  { id: 'b4', name: '组队开黑', icon: '👥' },
-  { id: 'b5', name: '创意工坊', icon: '🔧' },
-  { id: 'b6', name: '灌水区', icon: '💦' },
-];
+const BOARDS = ['综合讨论','英雄攻略','赛事资讯','组队开黑','创意工坊','灌水区'];
+
+const s: Record<string, any> = {
+  container: { maxWidth: 768, margin: '0 auto' },
+  back: { display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none', marginBottom: 16 },
+  card: { background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, padding: '28px' },
+  input: { width: '100%', padding: '10px 14px', borderRadius: 6, background: 'var(--bg-primary)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: 14, outline: 'none' },
+  btn: { padding: '10px 28px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600, background: 'var(--brand)', color: '#fff' },
+  tag: (active: boolean) => ({ padding: '6px 16px', borderRadius: 20, border: '1px solid ' + (active ? 'var(--brand)' : 'var(--border)'), background: active ? 'var(--brand-muted)' : 'transparent', color: active ? 'var(--brand)' : 'var(--text-secondary)', cursor: 'pointer', fontSize: 12, fontWeight: 500, transition: 'all .15s' }),
+};
 
 export default function PostCreatePage() {
   const navigate = useNavigate();
@@ -19,70 +21,46 @@ export default function PostCreatePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    if (!title.trim()) { setError('请输入标题'); return; }
-    if (content.trim().length < 10) { setError('正文至少10个字'); return; }
+    if (!title.trim()) return setError('请输入标题');
+    if (content.trim().length < 10) return setError('正文至少10个字');
     setLoading(true);
-    try {
-      const r: { id: string } = await contentApi.post('/posts', { boardId, title, content });
-      navigate('/post/' + r.id);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : '发布失败');
-    } finally { setLoading(false); }
+    try { const r: { id: string } = await contentApi.post('/posts', { boardId, title, content }); navigate('/post/' + r.id); }
+    catch (err: unknown) { setError(err instanceof Error ? err.message : '发布失败'); }
+    finally { setLoading(false); }
   };
 
   return (
-    <div className="animate-fade-in max-w-2xl mx-auto px-4 lg:px-8 py-6">
-      <Link to="/boards" className="inline-flex items-center gap-1 text-text-muted hover:text-brand-blue text-sm mb-6 transition-colors">
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg> 返回
-      </Link>
+    <div style={s.container}>
+      <Link to="/boards" style={s.back}>← 返回</Link>
 
-      <div className="card p-6 lg:p-8">
-        <h1 className="text-2xl font-bold text-text-primary mb-6">✏️ 发布新帖</h1>
+      <div style={s.card}>
+        <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 24 }}>发布新帖</h1>
 
-        {error && (
-          <div className="mb-6 p-4 bg-semantic-error/10 border border-semantic-error/30 rounded-xl text-sm text-semantic-error flex items-center gap-2">
-            <span>⚠️</span> {error}
-          </div>
-        )}
+        {error && <div style={{ padding: '10px 14px', borderRadius: 6, background: 'rgba(248,81,73,0.1)', border: '1px solid rgba(248,81,73,0.3)', color: 'var(--red)', fontSize: 13, marginBottom: 16 }}>{error}</div>}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">选择板块</label>
-            <div className="grid grid-cols-3 gap-2">
-              {BOARDS.map(b => (
-                <button key={b.id} type="button" onClick={() => setBoardId(b.id)}
-                  className={'flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ' +
-                    (boardId === b.id ? 'bg-brand-orange text-text-inverse shadow-glow' : 'bg-surface-base text-text-secondary hover:bg-surface-card border border-surface-border')}>
-                  {b.icon} {b.name}
-                </button>
+        <form onSubmit={submit}>
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, color: 'var(--text-secondary)' }}>选择板块</div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {BOARDS.map((name, i) => (
+                <button key={i} type="button" onClick={() => setBoardId('b' + (i + 1))} style={s.tag(boardId === 'b' + (i + 1))}>{name}</button>
               ))}
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">标题</label>
-            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="一句话说清楚你要讨论什么..."
-              maxLength={200} className="input-field text-sm" />
-            <p className="text-2xs text-text-muted mt-1 text-right">{title.length}/200</p>
+          <div style={{ marginBottom: 20 }}>
+            <input style={s.input} value={title} onChange={e => setTitle(e.target.value)} placeholder="标题" maxLength={200} />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">正文</label>
-            <textarea value={content} onChange={e => setContent(e.target.value)}
-              placeholder="详细说说你的想法...（至少10个字）" rows={12}
-              className="input-field text-sm resize-y" />
-            <p className="text-2xs text-text-muted mt-1 text-right">{content.length} 字</p>
+          <div style={{ marginBottom: 24 }}>
+            <textarea style={{ ...s.input, resize: 'vertical' }} rows={10} value={content} onChange={e => setContent(e.target.value)} placeholder="正文（至少10个字）" />
           </div>
 
-          <div className="flex gap-3 pt-2">
-            <button type="submit" disabled={loading}
-              className="btn-primary flex-1 text-sm py-3">
-              {loading ? '⏳ 发布中...' : '🚀 发布帖子'}
-            </button>
-            <Link to="/boards" className="btn-secondary text-sm py-3">取消</Link>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button type="submit" disabled={loading} style={{ ...s.btn, opacity: loading ? 0.5 : 1 }}>{loading ? '发布中...' : '发布帖子'}</button>
+            <Link to="/boards" style={{ padding: '10px 24px', borderRadius: 6, border: '1px solid var(--border)', color: 'var(--text-secondary)', textDecoration: 'none', fontSize: 14 }}>取消</Link>
           </div>
         </form>
       </div>

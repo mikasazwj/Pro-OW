@@ -1,102 +1,65 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation, Outlet } from 'react-router-dom';
+﻿import { useEffect, useState } from 'react';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { socialApi } from '../../lib/api';
-
-const NAV_ITEMS = [
-  { path: '/boards', label: '帖子广场', icon: '📋' },
-  { path: '/boards?board=b2', label: '英雄攻略', icon: '⚔️' },
-  { path: '/boards?board=b4', label: '组队开黑', icon: '👥' },
-  { path: '/boards?board=b5', label: '创意工坊', icon: '🔧' },
-];
 
 export default function AppLayout() {
   const { isLoggedIn, user, logout } = useAuth();
   const location = useLocation();
-  const [unreadNotifs, setUnreadNotifs] = useState(0);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [unread, setUnread] = useState(0);
+  useEffect(() => { if (isLoggedIn) socialApi.getNotifications().then(d => setUnread(d.unreadCount)); }, [isLoggedIn]);
 
-  useState(() => { if (isLoggedIn) { socialApi.getNotifications().then(d => setUnreadNotifs(d.unreadCount)); } });
+  const navStyle = (path: string) => ({
+    padding: '6px 12px', borderRadius: 6, fontSize: 13, fontWeight: 500,
+    color: location.pathname === path ? '#e6edf3' : '#8b949e',
+    background: location.pathname === path ? 'var(--bg-hover)' : 'transparent',
+    transition: 'all .15s',
+  });
 
   return (
-    <div className="min-h-screen bg-surface-root flex">
-      {/* Mobile overlay */}
-      {sidebarOpen && <div className="fixed inset-0 bg-black/60 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />}
-
-      {/* Sidebar */}
-      <aside className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-surface-base border-r border-surface-border flex flex-col transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        {/* Logo */}
-        <div className="p-5 border-b border-surface-border">
-          <Link to="/boards" className="flex items-center gap-2.5">
-            <span className="text-2xl">🦾</span>
-            <div>
-              <h1 className="text-lg font-bold text-brand-orange leading-tight">Pro-OW</h1>
-              <p className="text-2xs text-text-muted">守望先锋社区</p>
-            </div>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+      {/* Header */}
+      <header style={{
+        background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)',
+        padding: '0 24px', height: 56, display: 'flex', alignItems: 'center',
+        position: 'sticky', top: 0, zIndex: 100,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24, maxWidth: 1280, margin: '0 auto', width: '100%' }}>
+          <Link to="/boards" style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 18, color: '#e6edf3', textDecoration: 'none' }}>
+            <span style={{ color: 'var(--brand)', fontSize: 22 }}>◈</span> Pro-OW
           </Link>
-        </div>
 
-        {/* Nav items */}
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          {NAV_ITEMS.map(item => (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setSidebarOpen(false)}
-              className={'sidebar-link ' + (location.pathname + location.search === item.path ? 'active' : '')}
-            >
-              <span className="text-lg">{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          ))}
+          <nav style={{ display: 'flex', gap: 4, flex: 1 }}>
+            <Link to="/boards" style={navStyle('/boards')}>广场</Link>
+          </nav>
 
-          <div className="pt-3 mt-3 border-t border-surface-border">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             {isLoggedIn ? (
               <>
-                <Link to="/post/new" className="btn-primary w-full justify-center text-center mb-3 block" onClick={() => setSidebarOpen(false)}>
-                  ✏️ 发布新帖
+                <Link to="/notifications" style={{ position: 'relative', color: '#8b949e', padding: 4 }}>
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                  {unread > 0 && <span style={{ position: 'absolute', top: -2, right: -4, background: 'var(--red)', color: '#fff', fontSize: 10, fontWeight: 700, width: 16, height: 16, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{unread > 9 ? '9+' : unread}</span>}
                 </Link>
-                <Link to="/notifications" className="sidebar-link" onClick={() => setSidebarOpen(false)}>
-                  <span className="relative">
-                    <span className="text-lg">🔔</span>
-                    {unreadNotifs > 0 && (
-                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-semantic-error text-white text-2xs rounded-full flex items-center justify-center font-bold">{unreadNotifs > 9 ? '9+' : unreadNotifs}</span>
-                    )}
-                  </span>
-                  <span>通知中心</span>
+                <Link to="/post/new" style={{ padding: '6px 16px', background: 'var(--brand)', color: '#fff', borderRadius: 6, fontSize: 13, fontWeight: 600, textDecoration: 'none', transition: 'opacity .15s' }} onMouseOver={e => (e.currentTarget.style.opacity = '0.85')} onMouseOut={e => (e.currentTarget.style.opacity = '1')}>
+                  发帖
                 </Link>
-                <div className="px-4 py-3 mt-2 rounded-xl bg-surface-card">
-                  <p className="text-xs text-text-secondary">当前用户</p>
-                  <p className="text-sm font-semibold text-text-primary">{user?.username}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', borderRadius: 6 }}>
+                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--brand-muted)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>{(user?.username || '?')[0].toUpperCase()}</div>
+                  <span style={{ fontSize: 13, color: '#8b949e' }}>{user?.username}</span>
                 </div>
-                <button onClick={() => { logout(); setSidebarOpen(false); }} className="sidebar-link w-full text-left mt-1">
-                  <span className="text-lg">🚪</span> 退出登录
-                </button>
+                <button onClick={logout} style={{ background: 'none', border: 'none', color: '#484f58', cursor: 'pointer', fontSize: 13, padding: '4px 8px' }}>退出</button>
               </>
             ) : (
-              <div className="space-y-2 px-2">
-                <Link to="/login" className="btn-primary w-full justify-center text-center block" onClick={() => setSidebarOpen(false)}>登录</Link>
-                <Link to="/register" className="btn-secondary w-full justify-center text-center block" onClick={() => setSidebarOpen(false)}>注册账号</Link>
-              </div>
+              <>
+                <Link to="/login" style={{ color: '#8b949e', fontSize: 13, textDecoration: 'none' }}>登录</Link>
+                <Link to="/register" style={{ padding: '6px 16px', background: 'var(--bg-hover)', color: '#e6edf3', borderRadius: 6, fontSize: 13, fontWeight: 500, textDecoration: 'none', border: '1px solid var(--border)' }}>注册</Link>
+              </>
             )}
           </div>
-        </nav>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-surface-border">
-          <p className="text-2xs text-text-muted text-center">Pro-OW v0.1 MVP</p>
         </div>
-      </aside>
+      </header>
 
-      {/* Main content */}
-      <main className="flex-1 min-w-0">
-        {/* Mobile header */}
-        <div className="lg:hidden glass sticky top-0 z-30 px-4 py-3 flex items-center justify-between">
-          <button onClick={() => setSidebarOpen(true)} className="btn-ghost text-xl">☰</button>
-          <span className="font-bold text-brand-orange">Pro-OW</span>
-          <div className="w-8" />
-        </div>
-
+      <main style={{ maxWidth: 1280, margin: '0 auto', padding: '24px 24px 64px' }}>
         <Outlet />
       </main>
     </div>
