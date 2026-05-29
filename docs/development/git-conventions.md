@@ -1,26 +1,24 @@
-﻿# Git 提交规范 — Pro-OW
+# Git 提交规范 — Pro-OW
 
-> 版本: v1.0 | 基于 Conventional Commits
+> 版本: v1.0 | 基于 Conventional Commits | 语言: 中文
 
 ---
 
 ## 一、提交格式
 
 ```
-<type>(<scope>): <subject>
+<type>(<scope>): <中文简述>
 
-<body>
-
-<footer>
+<详细说明>
 ```
 
 **示例：**
 ```
-feat(content): add post CRUD API with Elasticsearch sync
+feat(content): 实现帖子 CRUD 接口与 ES 搜索同步
 
-- Implement create/read/update/delete endpoints for posts
-- Add RabbitMQ event publishing on PostCreated
-- Sync post index to Elasticsearch asynchronously
+- 新增帖子的创建/查看/编辑/删除接口
+- 发布 PostCreated 事件到 RabbitMQ
+- 异步同步帖子索引到 Elasticsearch
 
 Closes #42
 ```
@@ -31,16 +29,16 @@ Closes #42
 
 | Type | 说明 | 示例 |
 |---|---|---|
-| `feat` | 新功能 | `feat(user): add email verification` |
-| `fix` | Bug 修复 | `fix(auth): fix token expiry check` |
-| `refactor` | 重构(非功能/非修复) | `refactor(content): extract search logic` |
-| `perf` | 性能优化 | `perf(search): add Elasticsearch caching` |
-| `style` | 代码格式(不影响逻辑) | `style: format with prettier` |
-| `docs` | 文档更新 | `docs(api): add notification endpoints` |
-| `test` | 测试相关 | `test(auth): add login e2e tests` |
-| `chore` | 构建/工具/依赖 | `chore(deps): upgrade prisma to 5.x` |
-| `ci` | CI/CD 配置 | `ci: add GitHub Actions workflow` |
-| `revert` | 回滚 | `revert: revert feat(post): add draft` |
+| `feat` | 新功能 | `feat(user): 添加邮箱验证功能` |
+| `fix` | Bug 修复 | `fix(auth): 修复 Token 过期判断错误` |
+| `refactor` | 重构(非功能/非修复) | `refactor(content): 抽取搜索逻辑为独立模块` |
+| `perf` | 性能优化 | `perf(search): 添加 ES 缓存层` |
+| `style` | 代码格式(不影响逻辑) | `style: 统一 Prettier 格式化` |
+| `docs` | 文档更新 | `docs(api): 补充通知接口文档` |
+| `test` | 测试相关 | `test(auth): 添加登录流程 E2E 测试` |
+| `chore` | 构建/工具/依赖 | `chore(deps): 升级 Prisma 到 5.x` |
+| `ci` | CI/CD 配置 | `ci: 添加 GitHub Actions 工作流` |
+| `revert` | 回滚 | `revert: 回滚帖子草稿功能` |
 
 ---
 
@@ -79,26 +77,26 @@ Closes #42
 
 ```mermaid
 gitGraph
-    commit id: "init"
+    commit id: "初始化"
     branch develop
     checkout develop
-    commit id: "base"
+    commit id: "基础配置"
     
     branch feature/user-auth
     checkout feature/user-auth
-    commit id: "feat: register"
-    commit id: "feat: login"
+    commit id: "feat: 用户注册"
+    commit id: "feat: 用户登录"
     
     checkout develop
     merge feature/user-auth
     
     branch feature/post-crud
     checkout feature/post-crud
-    commit id: "feat: post api"
+    commit id: "feat: 帖子接口"
     
     checkout develop
     branch release/v0.1
-    commit id: "version bump"
+    commit id: "版本号升级"
     
     checkout main
     merge release/v0.1 tag: "v0.1.0"
@@ -112,17 +110,18 @@ gitGraph
 
 ## 五、Commit Message 规则
 
-1. **Header 不超过 72 字符**
-2. **Subject 用英文祈使句**：`add` 不是 `added` 或 `adds`
-3. **Body 每行不超过 72 字符**
-4. **与 Issue 关联**：`Closes #123` 或 `Refs #456`
+1. **type 和 scope 使用英文**（保持与 Conventional Commits 兼容）
+2. **简述使用中文**，简洁明了
+3. **Header 不超过 72 字符**
+4. **Body 每行不超过 72 字符**
+5. **与 Issue 关联**：`Closes #123` 或 `Refs #456`
 
 ### 好 vs 坏
 
 ```
 # ✅ 好
-feat(content): add ES full-text search support
-fix(auth): prevent token refresh race condition
+feat(content): 添加 Elasticsearch 全文搜索
+fix(auth): 修复并发刷新 Token 的竞态问题
 
 # ❌ 坏
 update code
@@ -155,7 +154,7 @@ v0.2.0  → v1.0.0  (正式发布)
 
 ### PR 标题
 ```
-feat(content): implement post CRUD API
+feat(content): 实现帖子 CRUD 接口
 ```
 
 ### PR 描述模板
