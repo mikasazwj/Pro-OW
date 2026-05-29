@@ -1,0 +1,13 @@
+{
+  "name": "@pro-ow/shared",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@pro-ow/config": "workspace:*"
+  }
+}

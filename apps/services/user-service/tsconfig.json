@@ -1,0 +1,8 @@
+{
+  "extends": "@pro-ow/config/tsconfig.nestjs.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "baseUrl": "./"
+  },
+  "include": ["src/**/*"]
+}
