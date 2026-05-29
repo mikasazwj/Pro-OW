@@ -38,7 +38,7 @@ export { tryRefreshToken };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => { const t = localStorage.getItem('token'); if (!t) return null; try { const base64 = t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'); const json = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')); const p = JSON.parse(json); return { id: p.sub, username: p.username, avatarUrl: null, role: p.role }; } catch { return null; } });
 
   const login = useCallback(async (email: string, password: string) => {
     const data: { accessToken: string; refreshToken: string } = await api.post('/auth/login', { email, password });
