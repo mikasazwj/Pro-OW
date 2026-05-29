@@ -1,15 +1,21 @@
-﻿const API_BASE = '/api/v1';
+﻿const API_BASE = 'http://localhost:3001/api/v1';
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(API_BASE + endpoint, {
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    ...options,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: '网络错误' }));
-    throw new Error(err.message);
+  const token = localStorage.getItem('token');
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options?.headers as Record<string, string>),
+  };
+  if (token) {
+    headers['Authorization'] = 'Bearer ' + token;
   }
-  return res.json();
+  
+  const res = await fetch(API_BASE + endpoint, { ...options, headers });
+  const json = await res.json();
+  if (!res.ok || json.code !== 0) {
+    throw new Error(json.message || '请求失败');
+  }
+  return json.data;
 }
 
 export const api = {
