@@ -19,6 +19,15 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+function decodeJwt(token: string) {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const json = decodeURIComponent(
+    atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+  );
+  return JSON.parse(json);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
   const [user, setUser] = useState<User | null>(null);
@@ -27,8 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data: { accessToken: string } = await api.post('/auth/login', { email, password });
     localStorage.setItem('token', data.accessToken);
     setToken(data.accessToken);
-    // 绠€鍗曡В鐮?JWT 鍙栫敤鎴蜂俊鎭紙涓嶉獙璇佺鍚嶏紝鍚庣宸查獙璇侊級
-    const payload = JSON.parse(atob(data.accessToken.split('.')[1]));
+    const payload = decodeJwt(data.accessToken);
     setUser({ id: payload.sub, username: payload.username, avatarUrl: null, role: payload.role });
   }, []);
 
