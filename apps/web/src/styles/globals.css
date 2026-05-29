@@ -2,6 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+@layer base {
+  * { @apply border-surface-border; }
+  body {
+    @apply bg-surface-root text-text-primary antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  ::selection { @apply bg-brand-orange/30 text-white; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-surface-border rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-text-muted; }
+  input, textarea, select { @apply outline-none; }
+  input:focus, textarea:focus, select:focus { @apply ring-2 ring-brand-blue/40 border-brand-blue; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2.5 bg-brand-orange text-text-inverse font-semibold rounded-xl
+           hover:bg-brand-orange-light active:scale-[0.98] transition-all duration-150
+           disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100;
+  }
+  .btn-secondary {
+    @apply px-4 py-2.5 bg-surface-card text-text-secondary font-medium rounded-xl border border-surface-border
+           hover:bg-surface-hover hover:text-text-primary active:scale-[0.98] transition-all duration-150;
+  }
+  .btn-ghost {
+    @apply px-3 py-2 text-text-secondary hover:text-text-primary hover:bg-surface-card rounded-lg
+           transition-all duration-150;
+  }
+  .card {
+    @apply bg-surface-card rounded-2xl border border-surface-border shadow-card
+           hover:shadow-elevated transition-all duration-200;
+  }
+  .input-field {
+    @apply w-full px-4 py-3 bg-surface-base border border-surface-border rounded-xl text-text-primary
+           placeholder:text-text-muted focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20
+           transition-all duration-150;
+  }
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold;
+  }
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-text-secondary text-sm font-medium
+           hover:bg-surface-card hover:text-text-primary transition-all duration-150;
+  }
+  .sidebar-link.active {
+    @apply bg-brand-orange-muted text-brand-orange font-semibold;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-orange to-brand-pink;
+  }
+  .glass {
+    @apply bg-surface-base/80 backdrop-blur-xl border border-surface-border/50;
+  }
 }

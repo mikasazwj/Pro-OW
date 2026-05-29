@@ -8,28 +8,34 @@ export default function NotificationsPage() {
   const [notifs, setNotifs] = useState<Notification[]>([]);
 
   useEffect(() => {
-    socialApi.getNotifications().then((d) => setNotifs(d.items as Notification[]));
+    socialApi.getNotifications().then(d => setNotifs(d.items as Notification[]));
     socialApi.readAll();
   }, []);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <Link to="/boards" className="text-ow-blue text-sm hover:underline mb-4 inline-block">← 返回</Link>
-      <h1 className="text-2xl font-bold text-white mb-6">通知</h1>
-      
+    <div className="animate-fade-in max-w-2xl mx-auto px-4 lg:px-8 py-6">
+      <h1 className="text-2xl font-bold text-text-primary mb-6">🔔 通知中心</h1>
+
       {notifs.length === 0 ? (
-        <p className="text-gray-500 text-center py-16">暂无通知</p>
+        <div className="flex flex-col items-center py-20 gap-3">
+          <span className="text-4xl">🔕</span>
+          <p className="text-text-secondary font-medium">暂无通知</p>
+          <p className="text-text-muted text-sm">当有人回复你的帖子时会在这里显示</p>
+        </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {notifs.map(n => (
-            <Link
-              key={n.id}
-              to={n.sourceType === 'post' ? '/post/' + n.sourceId : '/boards'}
-              className={'block p-4 rounded-xl transition-colors ' + (n.isRead ? 'bg-ow-darker' : 'bg-blue-500/10 border border-blue-500/30')}
-            >
-              <p className="text-white text-sm font-bold">{n.title}</p>
-              <p className="text-gray-400 text-xs mt-1">{n.content}</p>
-              <span className="text-gray-600 text-xs mt-2 block">{new Date(n.createdAt).toLocaleDateString('zh-CN')}</span>
+            <Link key={n.id} to={n.sourceType === 'post' ? '/post/' + n.sourceId : '/boards'}
+              className={'card block p-4 transition-all duration-200 ' + (n.isRead ? 'opacity-60 hover:opacity-100' : 'border-l-2 border-l-brand-orange')}>
+              <div className="flex items-start gap-3">
+                <span className="text-xl mt-0.5">{n.isRead ? '📬' : '📨'}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-text-primary">{n.title}</p>
+                  <p className="text-xs text-text-muted mt-1">{n.content}</p>
+                  <p className="text-2xs text-text-muted mt-2">{new Date(n.createdAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                </div>
+                {!n.isRead && <span className="w-2 h-2 rounded-full bg-brand-orange flex-shrink-0 mt-2" />}
+              </div>
             </Link>
           ))}
         </div>
