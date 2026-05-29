@@ -1,4 +1,4 @@
-﻿import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import api from '../lib/api';
 
 interface User {
@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data: { accessToken: string } = await api.post('/auth/login', { email, password });
     localStorage.setItem('token', data.accessToken);
     setToken(data.accessToken);
-    // 简单解码 JWT 取用户信息（不验证签名，后端已验证）
+    // 绠€鍗曡В鐮?JWT 鍙栫敤鎴蜂俊鎭紙涓嶉獙璇佺鍚嶏紝鍚庣宸查獙璇侊級
     const payload = JSON.parse(atob(data.accessToken.split('.')[1]));
     setUser({ id: payload.sub, username: payload.username, avatarUrl: null, role: payload.role });
   }, []);
