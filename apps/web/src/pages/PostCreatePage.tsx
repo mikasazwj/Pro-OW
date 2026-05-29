@@ -5,7 +5,7 @@ import { contentApi } from "../lib/api";
 const BOARDS = ["综合讨论","英雄攻略","赛事资讯","组队开黑","创意工坊","灌水区"];
 
 const s: Record<string, any> = {
-  container: { maxWidth: 768, margin: "0 auto" },
+  container: { maxWidth: 1050, margin: "0 auto" },
   back: { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 13, color: "var(--text-soft)", textDecoration: "none", marginBottom: 18, padding: "4px 10px", borderRadius: 8, transition: "all .15s" },
   card: { background: "var(--bg-surface)", borderRadius: 14, padding: "30px 32px", boxShadow: "var(--shadow-card)", border: "1px solid var(--border-light)" },
   input: { width: "100%", padding: "10px 14px", borderRadius: 10, background: "var(--bg-input)", border: "1px solid var(--border)", color: "var(--text-body)", fontSize: 14, outline: "none", transition: "border-color .15s" },

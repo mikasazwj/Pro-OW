@@ -7,7 +7,7 @@ export default function NotificationsPage() {
   const [notifs, setNotifs] = useState<Notification[]>([]);
   useEffect(() => { socialApi.getNotifications().then(d => setNotifs(d.items as Notification[])); socialApi.readAll(); }, []);
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto" }}>
+    <div style={{ maxWidth: 960, margin: "0 auto" }}>
       <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 24, letterSpacing: "-0.3px" }}>通知中心</h1>
       {notifs.length === 0 ? (
         <div style={{ textAlign: "center", padding: 64, color: "var(--text-muted)", background: "var(--bg-surface)", borderRadius: 14, boxShadow: "var(--shadow-card)", border: "1px solid var(--border-light)" }}><div style={{ fontSize: 14, fontWeight: 500 }}>暂无通知</div></div>

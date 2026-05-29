@@ -7,7 +7,7 @@ interface Post { id: string; title: string; content: string; boardName: string; 
 interface Comment { id: string; content: string; authorName: string; createdAt: string; }
 
 const s = {
-  container: { maxWidth: 768, margin: "0 auto" } as const,
+  container: { maxWidth: 1050, margin: "0 auto" } as const,
   back: { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 13, color: "var(--text-soft)", textDecoration: "none", marginBottom: 18, padding: "4px 10px", borderRadius: 8, transition: "all .15s" } as const,
   article: { background: "var(--bg-surface)", borderRadius: 14, padding: "28px 32px", marginBottom: 16, boxShadow: "var(--shadow-card)", border: "1px solid var(--border-light)" } as const,
   badge: { fontSize: 11, padding: "3px 12px", borderRadius: 10, background: "var(--ow-orange-ghost)", color: "var(--ow-orange)", fontWeight: 600 } as const,

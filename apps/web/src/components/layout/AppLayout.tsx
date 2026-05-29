@@ -41,7 +41,7 @@ export default function AppLayout() {
           </div>
         </div>
       </header>
-      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "28px 24px 80px" }}><Outlet /></main>
+      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "28px 16px 80px" }}><Outlet /></main>
     </div>
   );
 }

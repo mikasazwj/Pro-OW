@@ -7,7 +7,7 @@ interface Board { id: string; name: string; }
 interface Post { id: string; title: string; summary: string; boardName: string; authorName: string; likeCount: number; commentCount: number; createdAt: string; }
 
 const S = {
-  page: { maxWidth: 800, margin: "0 auto" } as const,
+  page: { maxWidth: 1100, margin: "0 auto" } as const,
   pill: (active: boolean) => ({ padding: "6px 16px", borderRadius: 20, fontSize: 13, fontWeight: 500, cursor: "pointer", border: "1px solid " + (active ? "var(--ow-orange)" : "var(--border)"), color: active ? "var(--ow-orange)" : "var(--text-soft)", background: active ? "var(--ow-orange-ghost)" : "transparent", transition: "all .15s", whiteSpace: "nowrap" as const }),
   sort: (active: boolean) => ({ fontSize: 13, padding: "4px 12px", borderRadius: 8, cursor: "pointer", background: active ? "var(--bg-hover)" : "transparent", color: active ? "var(--text-strong)" : "var(--text-muted)", border: "none", fontWeight: active ? 600 : 400 }),
   card: { background: "var(--bg-surface)", borderRadius: 12, marginBottom: 10, boxShadow: "var(--shadow-card)", border: "1px solid var(--border-light)", transition: "all .2s", overflow: "hidden" } as const,
