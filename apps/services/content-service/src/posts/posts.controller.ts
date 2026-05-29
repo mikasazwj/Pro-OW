@@ -39,7 +39,7 @@ export class PostsController {
     if (query.sort === 'featured') { where += ' AND p.isFeatured = 1'; orderBy = 'ORDER BY p.createdAt DESC'; }
 
     const items = this.db.prepare(
-      'SELECT p.id, p.title, substr(p.content, 1, 200) as summary, p.postType, p.isPinned, p.isFeatured, p.viewCount, p.likeCount, p.commentCount, p.createdAt, b.name as boardName, b.slug as boardSlug, u.username as authorName FROM posts p LEFT JOIN boards b ON p.boardId = b.id LEFT JOIN users u ON p.authorId = u.id ' + where + ' ' + orderBy + ' LIMIT ? OFFSET ?'
+      "SELECT p.id, p.title, substr(p.content, 1, 200) as summary, p.postType, p.isPinned, p.isFeatured, p.viewCount, p.likeCount, p.commentCount, p.createdAt, b.name as boardName, b.slug as boardSlug, COALESCE(u.nickname, u.username) as authorName FROM posts p LEFT JOIN boards b ON p.boardId = b.id LEFT JOIN users u ON p.authorId = u.id " + where + " " + orderBy + " LIMIT ? OFFSET ?"
     ).all(...params, pageSize, offset);
 
     const { total } = this.db.prepare('SELECT COUNT(*) as total FROM posts p ' + where).get(...params) as { total: number };
@@ -50,7 +50,7 @@ export class PostsController {
   @Get(':id')
   getPost(@Param('id') id: string): ApiResponse {
     const post = this.db.prepare(
-      'SELECT p.*, b.name as boardName, b.slug as boardSlug, u.username as authorName FROM posts p LEFT JOIN boards b ON p.boardId = b.id LEFT JOIN users u ON p.authorId = u.id WHERE p.id = ?'
+      'SELECT p.*, b.name as boardName, b.slug as boardSlug, COALESCE(u.nickname, u.username) as authorName FROM posts p LEFT JOIN boards b ON p.boardId = b.id LEFT JOIN users u ON p.authorId = u.id WHERE p.id = ?'
     ).get(id);
     if (!post) return { code: 40400, message: '帖子不存在', data: null };
 
@@ -61,18 +61,19 @@ export class PostsController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  createPost(@Body() dto: CreatePostDto, @Req() req: { user: { userId: string; username: string } }): ApiResponse {
+  createPost(@Body() dto: CreatePostDto, @Req() req: { user: { userId: string; username: string; nickname: string | null } }): ApiResponse {
     const board = this.db.prepare('SELECT id FROM boards WHERE id = ?').get(dto.boardId);
     if (!board) return { code: 40400, message: '板块不存在', data: null };
 
-    const { userId, username } = req.user;
-    this.db.prepare('INSERT OR IGNORE INTO users (id, username) VALUES (?, ?)').run(userId, username);
+    const { userId, username, nickname } = req.user;
+    this.db.prepare('INSERT OR REPLACE INTO users (id, username, nickname) VALUES (?, ?, ?)').run(userId, username, nickname);
 
     const id = uuidv4();
     this.db.prepare(
       'INSERT INTO posts (id, boardId, authorId, title, content) VALUES (?, ?, ?, ?, ?)'
     ).run(id, dto.boardId, userId, dto.title, dto.content);
 
-    return { code: 0, message: '发布成功', data: { id } };
+    const authorName = nickname || username;
+    return { code: 0, message: '发布成功', data: { id, authorName } };
   }
 }

@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Body, Param, Query, Inject, HttpCode, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Inject, HttpCode, HttpStatus, UseGuards, Req } from '@nestjs/common';
 import { IsString, IsOptional, MinLength, IsIn } from 'class-validator';
 import Database from 'better-sqlite3';
 import { v4 as uuidv4 } from 'uuid';
@@ -28,7 +28,7 @@ export class CommentsController {
     const orderBy = query.sort === 'hot' ? 'c.likeCount DESC' : 'c.createdAt ASC';
 
     const items = this.db.prepare(
-      'SELECT c.id, c.content, c.parentId, c.likeCount, c.createdAt, u.username as authorName FROM comments c LEFT JOIN users u ON c.authorId = u.id WHERE c.postId = ? AND c.status = ? ORDER BY ' + orderBy + ' LIMIT ? OFFSET ?'
+      "SELECT c.id, c.content, c.parentId, c.likeCount, c.createdAt, COALESCE(u.nickname, u.username) as authorName FROM comments c LEFT JOIN users u ON c.authorId = u.id WHERE c.postId = ? AND c.status = ? ORDER BY " + orderBy + " LIMIT ? OFFSET ?"
     ).all(postId, 'published', pageSize, offset);
 
     const { total } = this.db.prepare('SELECT COUNT(*) as total FROM comments WHERE postId = ? AND status = ?').get(postId, 'published') as { total: number };
@@ -39,12 +39,12 @@ export class CommentsController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  createComment(@Param('postId') postId: string, @Body() dto: CreateCommentDto, @Req() req: { user: { userId: string; username: string } }): ApiResponse {
+  createComment(@Param('postId') postId: string, @Body() dto: CreateCommentDto, @Req() req: { user: { userId: string; username: string; nickname: string | null } }): ApiResponse {
     const post = this.db.prepare('SELECT id FROM posts WHERE id = ?').get(postId);
     if (!post) return { code: 40400, message: '帖子不存在', data: null };
 
-    const { userId, username } = req.user;
-    this.db.prepare('INSERT OR IGNORE INTO users (id, username) VALUES (?, ?)').run(userId, username);
+    const { userId, username, nickname } = req.user;
+    this.db.prepare('INSERT OR REPLACE INTO users (id, username, nickname) VALUES (?, ?, ?)').run(userId, username, nickname);
 
     const id = uuidv4();
     this.db.prepare(
@@ -55,12 +55,13 @@ export class CommentsController {
 
     // Create notification for post author
     const postAuthor = this.db.prepare('SELECT authorId, title FROM posts WHERE id = ?').get(postId) as { authorId: string; title: string } | undefined;
+    const authorName = nickname || username;
     if (postAuthor && postAuthor.authorId !== userId) {
       this.db.prepare(
         'INSERT INTO notifications (id, userId, title, content, sourceType, sourceId) VALUES (?, ?, ?, ?, ?, ?)'
-      ).run(uuidv4(), postAuthor.authorId, '新回复', username + ' 回复了你的帖子', 'post', postId);
+      ).run(uuidv4(), postAuthor.authorId, '新回复', authorName + ' 回复了你的帖子', 'post', postId);
     }
 
-    return { code: 0, message: '评论成功', data: { id } };
+    return { code: 0, message: '评论成功', data: { id, content: dto.content, authorName, createdAt: new Date().toISOString() } };
   }
 }

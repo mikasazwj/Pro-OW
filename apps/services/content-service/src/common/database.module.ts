@@ -13,7 +13,7 @@ export class DatabaseModule implements OnModuleInit {
   onModuleInit() {
     const db = new Database(DB_PATH);
     db.exec(`
-      CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, username TEXT NOT NULL, createdAt TEXT DEFAULT (datetime('now')));
+      CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, username TEXT NOT NULL, nickname TEXT, createdAt TEXT DEFAULT (datetime('now')));
       CREATE TABLE IF NOT EXISTS boards (
         id TEXT PRIMARY KEY, name TEXT NOT NULL, slug TEXT UNIQUE NOT NULL, description TEXT, parentId TEXT, sortOrder INTEGER DEFAULT 0
       );
@@ -35,6 +35,9 @@ export class DatabaseModule implements OnModuleInit {
       CREATE TABLE IF NOT EXISTS notifications (id TEXT PRIMARY KEY, userId TEXT NOT NULL, title TEXT NOT NULL, content TEXT NOT NULL, sourceType TEXT, sourceId TEXT, isRead INTEGER DEFAULT 0, createdAt TEXT DEFAULT (datetime('now')));
       CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(userId, isRead, createdAt DESC);
     `);
+    // Add nickname column if missing
+    try { db.exec("ALTER TABLE users ADD COLUMN nickname TEXT"); } catch {}
+    
     const count = db.prepare('SELECT COUNT(*) as cnt FROM boards').get() as { cnt: number };
     if (count.cnt === 0) {
       const insert = db.prepare('INSERT INTO boards (id, name, slug, description, sortOrder) VALUES (?, ?, ?, ?, ?)');

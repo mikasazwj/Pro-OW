@@ -20,7 +20,7 @@ export class UserCommentsController {
     const offset = (page - 1) * pageSize;
 
     const items = this.db.prepare(
-      'SELECT c.id, c.content, c.postId, c.likeCount, c.createdAt, u.username as authorName FROM comments c LEFT JOIN users u ON c.authorId = u.id WHERE c.authorId = ? AND c.status = ? ORDER BY c.createdAt DESC LIMIT ? OFFSET ?'
+      "SELECT c.id, c.content, c.postId, c.likeCount, c.createdAt, COALESCE(u.nickname, u.username) as authorName FROM comments c LEFT JOIN users u ON c.authorId = u.id WHERE c.authorId = ? AND c.status = ? ORDER BY c.createdAt DESC LIMIT ? OFFSET ?"
     ).all(query.authorId, 'published', pageSize, offset);
 
     const { total } = this.db.prepare(

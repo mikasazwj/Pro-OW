@@ -1,4 +1,4 @@
-﻿import { Injectable, UnauthorizedException, ConflictException, Inject } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import Database from 'better-sqlite3';
@@ -9,6 +9,7 @@ interface UserRow {
   username: string;
   email: string;
   passwordHash: string;
+  nickname: string | null;
   role: string;
 }
 
@@ -52,7 +53,7 @@ export class AuthService {
       throw new UnauthorizedException('邮箱或密码错误');
     }
 
-    const payload = { sub: user.id, username: user.username, role: user.role };
+    const payload = { sub: user.id, username: user.username, nickname: user.nickname, role: user.role };
     const accessToken = this.jwtService.sign(payload);
 
     return { accessToken, expiresIn: 900 };
