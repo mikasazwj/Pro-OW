@@ -13,6 +13,7 @@ export class DatabaseModule implements OnModuleInit {
   onModuleInit() {
     const db = new Database(DB_PATH);
     db.exec(`
+      CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, username TEXT NOT NULL, createdAt TEXT DEFAULT (datetime('now')));
       CREATE TABLE IF NOT EXISTS boards (
         id TEXT PRIMARY KEY, name TEXT NOT NULL, slug TEXT UNIQUE NOT NULL, description TEXT, parentId TEXT, sortOrder INTEGER DEFAULT 0
       );
@@ -31,7 +32,6 @@ export class DatabaseModule implements OnModuleInit {
       CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(authorId);
       CREATE INDEX IF NOT EXISTS idx_comments_post ON comments(postId, createdAt ASC);
     `);
-    // Seed default boards
     const count = db.prepare('SELECT COUNT(*) as cnt FROM boards').get() as { cnt: number };
     if (count.cnt === 0) {
       const insert = db.prepare('INSERT INTO boards (id, name, slug, description, sortOrder) VALUES (?, ?, ?, ?, ?)');
@@ -43,6 +43,6 @@ export class DatabaseModule implements OnModuleInit {
       insert.run('b6', '灌水区', 'off-topic', '休闲聊天，随意灌水', 6);
     }
     db.close();
-    console.log('Content database initialized with ' + count.cnt + ' boards');
+    console.log('Content database initialized');
   }
 }

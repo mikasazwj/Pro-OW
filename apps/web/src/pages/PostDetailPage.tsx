@@ -3,8 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { contentApi } from '../lib/api';
 
-interface Post { id: string; title: string; content: string; boardId: string; boardName: string; boardSlug: string; authorId: string; viewCount: number; likeCount: number; commentCount: number; createdAt: string; }
-interface Comment { id: string; content: string; parentId: string | null; likeCount: number; createdAt: string; }
+interface Post { id: string; title: string; content: string; boardId: string; boardName: string; boardSlug: string; authorId: string; authorName: string; viewCount: number; likeCount: number; commentCount: number; createdAt: string; }
+interface Comment { id: string; content: string; parentId: string | null; authorName: string; likeCount: number; createdAt: string; }
 
 export default function PostDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,9 +22,13 @@ export default function PostDetailPage() {
 
   const handleComment = async () => {
     if (!newComment.trim() || !id) return;
-    const r: { id: string } = await contentApi.post('/posts/' + id + '/comments', { content: newComment });
-    setComments(prev => [...prev, { id: r.id, content: newComment, parentId: null, likeCount: 0, createdAt: new Date().toISOString() }]);
-    setNewComment('');
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const r: { id: string } = await contentApi.post('/posts/' + id + '/comments', { content: newComment });
+      setComments(prev => [...prev, { id: r.id, content: newComment, parentId: null, authorName: '我', likeCount: 0, createdAt: new Date().toISOString() }]);
+      setNewComment('');
+    } catch (e) { /* ignore */ }
   };
 
   if (loading) return <div className="text-center text-gray-500 py-20">加载中...</div>;
@@ -35,7 +39,10 @@ export default function PostDetailPage() {
       <Link to="/boards" className="text-ow-blue text-sm hover:underline mb-4 inline-block">← 返回列表</Link>
       
       <div className="bg-ow-darker rounded-xl p-6 mb-6">
-        <span className="text-ow-blue text-xs">{post.boardName}</span>
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-ow-blue text-xs">{post.boardName}</span>
+          <span className="text-gray-400 text-xs">作者: {post.authorName}</span>
+        </div>
         <h1 className="text-2xl font-bold text-white mt-1">{post.title}</h1>
         <div className="flex gap-4 mt-3 text-xs text-gray-500">
           <span>{post.viewCount} 阅读</span>
@@ -46,7 +53,6 @@ export default function PostDetailPage() {
         <div className="mt-6 text-gray-300 leading-relaxed whitespace-pre-wrap">{post.content}</div>
       </div>
 
-      {/* Comments */}
       <div className="bg-ow-darker rounded-xl p-6">
         <h3 className="text-lg font-bold text-white mb-4">评论 ({comments.length})</h3>
         
@@ -63,6 +69,7 @@ export default function PostDetailPage() {
           <div className="space-y-4">
             {comments.map(c => (
               <div key={c.id} className="border-b border-gray-800 pb-4 last:border-0">
+                <p className="text-gray-500 text-xs mb-1">{c.authorName}</p>
                 <p className="text-gray-300 text-sm">{c.content}</p>
                 <span className="text-xs text-gray-600 mt-1">{new Date(c.createdAt).toLocaleDateString('zh-CN')}</span>
               </div>

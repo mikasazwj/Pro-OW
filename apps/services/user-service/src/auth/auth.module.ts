@@ -4,12 +4,14 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
+const JWT_SECRET = process.env.JWT_SECRET || 'pro-ow-dev-secret';
+
 @Module({
   imports: [
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET ?? 'dev-secret',
-      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN ?? '900s' },
+      secret: JWT_SECRET,
+      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '900s' },
     }),
   ],
   controllers: [AuthController],
