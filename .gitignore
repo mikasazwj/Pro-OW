@@ -46,3 +46,6 @@ coverage/
 
 *.db-shm
 *.db-wal
+
+test-results/
+playwright-report/
