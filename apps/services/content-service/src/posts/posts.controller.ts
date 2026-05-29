@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Body, Param, Query, Inject, HttpCode, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Inject, HttpCode, HttpStatus, UseGuards, Req } from '@nestjs/common';
 import { IsString, IsOptional, IsIn, MinLength, MaxLength } from 'class-validator';
 import Database from 'better-sqlite3';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,6 +13,7 @@ class CreatePostDto {
 
 class ListPostsQuery {
   @IsOptional() @IsString() boardId?: string;
+  @IsOptional() @IsString() authorId?: string;
   @IsOptional() @IsIn(['latest', 'hot', 'featured']) sort?: string;
   @IsOptional() page?: number;
   @IsOptional() pageSize?: number;
@@ -31,6 +32,7 @@ export class PostsController {
     let where = "WHERE p.status = 'published'";
     const params: unknown[] = [];
     if (query.boardId) { where += ' AND p.boardId = ?'; params.push(query.boardId); }
+    if (query.authorId) { where += ' AND p.authorId = ?'; params.push(query.authorId); }
 
     let orderBy = 'ORDER BY p.createdAt DESC';
     if (query.sort === 'hot') orderBy = 'ORDER BY p.likeCount DESC, p.commentCount DESC';
