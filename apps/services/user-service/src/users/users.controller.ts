@@ -1,17 +1,17 @@
-﻿import { Controller, Get, Param } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+﻿import { Controller, Get, Param, Inject } from '@nestjs/common';
+import Database from 'better-sqlite3';
 import type { ApiResponse } from '@pro-ow/shared';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(@Inject('DATABASE') private readonly db: Database.Database) {}
 
   @Get(':id')
-  async getUser(@Param('id') id: string): Promise<ApiResponse> {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-      select: { id: true, username: true, avatarUrl: true, role: true, createdAt: true },
-    });
+  getUser(@Param('id') id: string): ApiResponse {
+    const user = this.db.prepare(
+      'SELECT id, username, avatarUrl, role, createdAt FROM users WHERE id = ?'
+    ).get(id);
+    
     if (!user) {
       return { code: 40400, message: '用户不存在', data: null };
     }

@@ -1,15 +1,26 @@
 ﻿import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { IsString, IsEmail, MinLength } from 'class-validator';
 import { AuthService } from './auth.service';
 import type { ApiResponse } from '@pro-ow/shared';
 
 class RegisterDto {
+  @IsString()
+  @MinLength(3)
   username!: string;
+
+  @IsEmail()
   email!: string;
+
+  @IsString()
+  @MinLength(6)
   password!: string;
 }
 
 class LoginDto {
+  @IsEmail()
   email!: string;
+
+  @IsString()
   password!: string;
 }
 
