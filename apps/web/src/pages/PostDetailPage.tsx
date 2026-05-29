@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { contentApi, socialApi } from '../lib/api';
+import { marked } from 'marked';
+
+marked.setOptions({ breaks: true, gfm: true });
 
 interface Post { id: string; title: string; content: string; boardName: string; authorName: string; likeCount: number; commentCount: number; viewCount: number; createdAt: string; }
 interface Comment { id: string; content: string; authorName: string; parentId: string | null; replyToId: string | null; replyToAuthorName: string | null; createdAt: string; }
@@ -38,6 +41,11 @@ export default function PostDetailPage() {
     if (isLoggedIn) { socialApi.checkFavorite(id).then(r => setFavorited(r.favorited)).catch(() => {}); }
   }, [id]);
 
+  const postHtml = useMemo(() => {
+    if (!post) return '';
+    try { return marked(post.content) as string; } catch { return post.content; }
+  }, [post]);
+
   const like = async () => { if (!isLoggedIn || !id) return; try { const r = await socialApi.likePost(id); setLiked(r.liked); setLikeCount(r.likeCount); } catch {} };
   const toggleFav = async () => {
     if (!isLoggedIn || !id) return;
@@ -46,7 +54,6 @@ export default function PostDetailPage() {
       else { await socialApi.favoritePost(id); setFavorited(true); }
     } catch {}
   };
-
   const submit = async () => {
     if (!text.trim() || !id) return;
     try {
@@ -62,7 +69,6 @@ export default function PostDetailPage() {
   if (loading) return <div style={{ textAlign: 'center', padding: 80, color: 'var(--text-muted)', fontSize: 16 }}>加载中...</div>;
   if (!post) return <div style={{ textAlign: 'center', padding: 80, color: 'var(--text-muted)', fontSize: 16 }}>帖子不存在</div>;
 
-  // Organize comments: top-level and replies
   const topComments = comments.filter(c => !c.parentId);
   const replies = (parentId: string) => comments.filter(c => c.parentId === parentId);
 
@@ -82,7 +88,7 @@ export default function PostDetailPage() {
             <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 2 }}>{new Date(post.createdAt).toLocaleDateString('zh-CN')} · {post.viewCount} 次阅读</div>
           </div>
         </div>
-        <div style={{ fontSize: 17, lineHeight: 1.85, color: 'var(--text-body)', whiteSpace: 'pre-wrap' }}>{post.content}</div>
+        <div style={{ fontSize: 17, lineHeight: 1.85, color: 'var(--text-body)' }} dangerouslySetInnerHTML={{ __html: postHtml }} />
         <div style={{ display: 'flex', gap: 10, marginTop: 32, paddingTop: 28, borderTop: '1px solid var(--border-light)' }}>
           <button onClick={like} style={{ ...s.btn, background: liked ? 'var(--red-ghost)' : 'var(--bg-hover)', color: liked ? 'var(--red)' : 'var(--text-soft)', border: liked ? '1px solid var(--red)' : '1px solid var(--border)' }}>
             <svg width="16" height="16" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
@@ -93,7 +99,6 @@ export default function PostDetailPage() {
           </button>
         </div>
       </article>
-
       <section style={s.article}>
         <h2 style={{ fontSize: 19, fontWeight: 700, marginBottom: 24 }}>评论 {comments.length}</h2>
         {isLoggedIn && (
