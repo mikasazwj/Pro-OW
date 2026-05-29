@@ -1,4 +1,4 @@
-﻿import { Global, Module, OnModuleInit } from '@nestjs/common';
+import { Global, Module, OnModuleInit } from '@nestjs/common';
 import Database from 'better-sqlite3';
 import * as path from 'path';
 
@@ -30,7 +30,10 @@ export class DatabaseModule implements OnModuleInit {
       );
       CREATE INDEX IF NOT EXISTS idx_posts_board ON posts(boardId, createdAt DESC);
       CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(authorId);
-      CREATE INDEX IF NOT EXISTS idx_comments_post ON comments(postId, createdAt ASC);
+            CREATE INDEX IF NOT EXISTS idx_comments_post ON comments(postId, createdAt ASC);
+      CREATE TABLE IF NOT EXISTS likes (id TEXT PRIMARY KEY, userId TEXT NOT NULL, targetType TEXT NOT NULL, targetId TEXT NOT NULL, createdAt TEXT DEFAULT (datetime('now')), UNIQUE(userId, targetType, targetId));
+      CREATE TABLE IF NOT EXISTS notifications (id TEXT PRIMARY KEY, userId TEXT NOT NULL, title TEXT NOT NULL, content TEXT NOT NULL, sourceType TEXT, sourceId TEXT, isRead INTEGER DEFAULT 0, createdAt TEXT DEFAULT (datetime('now')));
+      CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(userId, isRead, createdAt DESC);
     `);
     const count = db.prepare('SELECT COUNT(*) as cnt FROM boards').get() as { cnt: number };
     if (count.cnt === 0) {

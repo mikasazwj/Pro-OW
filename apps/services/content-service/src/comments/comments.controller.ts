@@ -53,6 +53,14 @@ export class CommentsController {
 
     this.db.prepare('UPDATE posts SET commentCount = commentCount + 1 WHERE id = ?').run(postId);
 
+    // Create notification for post author
+    const postAuthor = this.db.prepare('SELECT authorId, title FROM posts WHERE id = ?').get(postId) as { authorId: string; title: string } | undefined;
+    if (postAuthor && postAuthor.authorId !== userId) {
+      this.db.prepare(
+        'INSERT INTO notifications (id, userId, title, content, sourceType, sourceId) VALUES (?, ?, ?, ?, ?, ?)'
+      ).run(uuidv4(), postAuthor.authorId, '新回复', username + ' 回复了你的帖子', 'post', postId);
+    }
+
     return { code: 0, message: '评论成功', data: { id } };
   }
 }

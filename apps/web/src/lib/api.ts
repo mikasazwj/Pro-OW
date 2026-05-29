@@ -1,4 +1,4 @@
-﻿const API_BASE = 'http://localhost:3001/api/v1';
+﻿const USER_API = 'http://localhost:3001/api/v1';
 const CONTENT_API = 'http://localhost:3002/api/v1';
 
 async function request<T>(baseUrl: string, endpoint: string, options?: RequestInit): Promise<T> {
@@ -13,13 +13,19 @@ async function request<T>(baseUrl: string, endpoint: string, options?: RequestIn
 }
 
 export const api = {
-  get: <T>(endpoint: string) => request<T>(API_BASE, endpoint),
-  post: <T>(endpoint: string, body: unknown) => request<T>(API_BASE, endpoint, { method: 'POST', body: JSON.stringify(body) }),
+  get: <T>(endpoint: string) => request<T>(USER_API, endpoint),
+  post: <T>(endpoint: string, body: unknown) => request<T>(USER_API, endpoint, { method: 'POST', body: JSON.stringify(body) }),
 };
 
 export const contentApi = {
   get: <T>(endpoint: string) => request<T>(CONTENT_API, endpoint),
   post: <T>(endpoint: string, body: unknown) => request<T>(CONTENT_API, endpoint, { method: 'POST', body: JSON.stringify(body) }),
+};
+
+export const socialApi = {
+  getNotifications: () => request<{ items: unknown[]; unreadCount: number }>(CONTENT_API, '/notifications'),
+  readAll: () => request<null>(CONTENT_API, '/notifications/read-all', { method: 'PATCH' }),
+  likePost: (id: string) => request<{ liked: boolean; likeCount: number }>(CONTENT_API, '/posts/' + id + '/like', { method: 'POST' }),
 };
 
 export default api;
