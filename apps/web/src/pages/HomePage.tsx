@@ -1,8 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function HomePage() {
   const { isLoggedIn, user, logout } = useAuth();
+  const navigate = useNavigate();
+  const handleLogout = () => { logout(); navigate("/login"); };
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "var(--bg-page)", gap: 24 }}>
       <div style={{ textAlign: "center" }}>
@@ -23,7 +25,7 @@ export default function HomePage() {
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <Link to="/boards" style={{ padding: "8px 20px", background: "var(--ow-orange)", color: "#fff", borderRadius: 10, fontSize: 13, fontWeight: 600, textDecoration: "none", boxShadow: "0 2px 8px rgba(240,100,36,0.3)", transition: "all .15s" }}>进入论坛</Link>
-            <button onClick={logout} style={{ padding: "8px 20px", background: "var(--bg-hover)", border: "1px solid var(--border)", color: "var(--text-soft)", borderRadius: 10, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all .15s" }}>退出登录</button>
+            <button onClick={handleLogout} style={{ padding: "8px 20px", background: "var(--bg-hover)", border: "1px solid var(--border)", color: "var(--text-soft)", borderRadius: 10, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all .15s" }}>退出登录</button>
           </div>
         </div>
       ) : (

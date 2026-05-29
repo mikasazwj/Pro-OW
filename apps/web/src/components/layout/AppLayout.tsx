@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { socialApi } from "../../lib/api";
 
 export default function AppLayout() {
   const { isLoggedIn, user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [unread, setUnread] = useState(0);
   useEffect(() => { if (isLoggedIn) socialApi.getNotifications().then(d => setUnread(d.unreadCount)); }, [isLoggedIn]);
   const isActive = (p: string) => location.pathname.startsWith(p);
+  const handleLogout = () => { logout(); navigate("/login"); };
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-page)" }}>
       <header style={{ background: "var(--bg-surface)", boxShadow: "var(--shadow-nav)", padding: "0 24px", height: 56, display: "flex", alignItems: "center", position: "sticky", top: 0, zIndex: 100 }}>
@@ -31,7 +33,7 @@ export default function AppLayout() {
                 <div style={{ width: 26, height: 26, borderRadius: 8, background: "linear-gradient(135deg, var(--ow-orange), var(--ow-orange-light))", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>{(user?.username || "?")[0].toUpperCase()}</div>
                 <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-body)" }}>{user?.username}</span>
               </div>
-              <button onClick={logout} style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 12, padding: "6px 10px", borderRadius: 8, transition: "all .15s" }} onMouseOver={e => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--red)"; }} onMouseOut={e => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "var(--text-muted)"; }}>退出</button>
+              <button onClick={handleLogout} style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 12, padding: "6px 10px", borderRadius: 8, transition: "all .15s" }} onMouseOver={e => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--red)"; }} onMouseOut={e => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "var(--text-muted)"; }}>退出</button>
             </>) : (<>
               <Link to="/login" style={{ color: "var(--text-soft)", fontSize: 13, fontWeight: 500, textDecoration: "none", padding: "6px 14px", borderRadius: 8, transition: "all .15s" }} onMouseOver={e => { e.currentTarget.style.background = "var(--bg-hover)"; }} onMouseOut={e => { e.currentTarget.style.background = "none"; }}>登录</Link>
               <Link to="/register" style={{ padding: "7px 18px", background: "var(--ow-orange)", color: "#fff", borderRadius: 10, fontSize: 13, fontWeight: 600, textDecoration: "none", transition: "all .15s", boxShadow: "0 2px 8px rgba(240,100,36,0.3)" }} onMouseOver={e => { e.currentTarget.style.transform = "translateY(-1px)"; }} onMouseOut={e => { e.currentTarget.style.transform = "none"; }}>注册</Link>
