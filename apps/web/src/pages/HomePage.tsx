@@ -1,44 +1,38 @@
-﻿import { useAuth } from '../contexts/AuthContext';
+import { Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function HomePage() {
   const { isLoggedIn, user, logout } = useAuth();
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-6">
-      <h1 className="text-5xl font-bold text-ow-orange">Pro-OW</h1>
-      <p className="text-xl text-gray-400">守望先锋社区论坛</p>
-
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "var(--bg-page)", gap: 24 }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ width: 80, height: 80, borderRadius: 22, background: "linear-gradient(135deg, var(--ow-orange), #E55A1E)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", boxShadow: "0 8px 32px rgba(240,100,36,0.35)" }}>
+          <span style={{ fontSize: 36, color: "#fff", fontWeight: 800 }}>OW</span>
+        </div>
+        <h1 style={{ fontSize: 42, fontWeight: 800, color: "var(--text-strong)", letterSpacing: "-1px", marginBottom: 8 }}>Pro-OW</h1>
+        <p style={{ fontSize: 17, color: "var(--text-soft)", lineHeight: 1.6 }}>Overwatch Player Community</p>
+      </div>
       {isLoggedIn && user ? (
-        <div className="flex flex-col items-center gap-4">
-          <div className="px-6 py-4 bg-ow-darker rounded-xl text-center">
-            <p className="text-lg text-white font-bold">{user.username}</p>
-            <p className="text-sm text-gray-500">已登录 · {user.id.slice(0, 8)}...</p>
+        <div style={{ background: "var(--bg-surface)", borderRadius: 14, padding: "20px 28px", display: "flex", flexDirection: "column", alignItems: "center", gap: 14, boxShadow: "var(--shadow-card)", border: "1px solid var(--border-light)" }}>
+          <div style={{ width: 44, height: 44, borderRadius: 14, background: "linear-gradient(135deg, var(--ow-orange), var(--ow-orange-light))", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700 }}>
+            {user.username[0].toUpperCase()}
           </div>
-          <button
-            onClick={logout}
-            className="px-6 py-2 border border-red-500 text-red-400 rounded-lg hover:bg-red-500/10 transition-colors"
-          >
-            退出登录
-          </button>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-strong)" }}>{user.username}</div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>Online</div>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Link to="/boards" style={{ padding: "8px 20px", background: "var(--ow-orange)", color: "#fff", borderRadius: 10, fontSize: 13, fontWeight: 600, textDecoration: "none", boxShadow: "0 2px 8px rgba(240,100,36,0.3)", transition: "all .15s" }}>Enter Forum</Link>
+            <button onClick={logout} style={{ padding: "8px 20px", background: "var(--bg-hover)", border: "1px solid var(--border)", color: "var(--text-soft)", borderRadius: 10, fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all .15s" }}>Logout</button>
+          </div>
         </div>
       ) : (
-        <div className="flex gap-4">
-          <a
-            href="/login"
-            className="px-6 py-2 bg-ow-blue rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            登录
-          </a>
-          <a
-            href="/register"
-            className="px-6 py-2 border border-gray-500 rounded-lg hover:border-ow-orange transition-colors"
-          >
-            注册
-          </a>
+        <div style={{ display: "flex", gap: 12 }}>
+          <Link to="/login" style={{ padding: "12px 32px", background: "var(--ow-orange)", color: "#fff", borderRadius: 12, fontSize: 15, fontWeight: 600, textDecoration: "none", boxShadow: "0 4px 16px rgba(240,100,36,0.3)", transition: "all .15s" }}>Login</Link>
+          <Link to="/register" style={{ padding: "12px 32px", background: "var(--bg-surface)", color: "var(--text-strong)", borderRadius: 12, fontSize: 15, fontWeight: 600, textDecoration: "none", border: "1px solid var(--border)", boxShadow: "var(--shadow-card)", transition: "all .15s" }}>Register</Link>
         </div>
       )}
-
-      <p className="text-gray-600 text-sm mt-8">MVP v0.1 — 前后端已联通</p>
+      <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 24 }}>MVP v0.1 - Powered by Codex</p>
     </div>
   );
 }

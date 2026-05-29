@@ -1,44 +1,57 @@
-﻿@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Pro-OW Overwatch-Inspired Light Theme */
 
 :root {
-  --bg-primary: #0d1117;
-  --bg-secondary: #161b22;
-  --bg-card: #21262d;
-  --bg-hover: #30363d;
-  --border: #30363d;
-  --text-primary: #e6edf3;
-  --text-secondary: #8b949e;
-  --text-muted: #484f58;
-  --brand: #f78166;
-  --brand-light: #ffa28b;
-  --brand-muted: rgba(247,129,102,0.12);
-  --blue: #58a6ff;
-  --blue-muted: rgba(88,166,255,0.12);
-  --green: #3fb950;
-  --red: #f85149;
-  --radius: 6px;
+  --ow-orange: #F06424;
+  --ow-orange-light: #FF9B6A;
+  --ow-orange-ghost: rgba(240,100,36,0.08);
+  --ow-orange-hover: #E55A1E;
+  --ow-blue: #218FFE;
+  --ow-blue-ghost: rgba(33,143,254,0.08);
+  --ow-dark: #1A1A2E;
+
+  --bg-page: #F4F6FA;
+  --bg-surface: #FFFFFF;
+  --bg-hover: #EDF0F5;
+  --bg-input: #F8F9FC;
+
+  --border: #E2E6ED;
+  --border-light: #EEF1F5;
+
+  --text-strong: #12131C;
+  --text-body: #3A3D4A;
+  --text-soft: #6E7280;
+  --text-muted: #9CA0B0;
+
+  --green: #16A34A;
+  --red: #DC2626;
+  --red-ghost: rgba(220,38,38,0.08);
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+
+  --shadow-card: 0 1px 3px rgba(18,19,28,0.06), 0 1px 2px rgba(18,19,28,0.04);
+  --shadow-card-hover: 0 4px 16px rgba(18,19,28,0.08), 0 2px 4px rgba(18,19,28,0.04);
+  --shadow-nav: 0 1px 0 rgba(18,19,28,0.06);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+  background: var(--bg-page);
+  color: var(--text-body);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
-a { color: var(--blue); text-decoration: none; }
+a { color: var(--ow-blue); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
 
-input, textarea, select, button {
-  font-family: inherit;
-  font-size: inherit;
-}
+input, textarea, select, button { font-family: inherit; font-size: inherit; }
+button { cursor: pointer; }
