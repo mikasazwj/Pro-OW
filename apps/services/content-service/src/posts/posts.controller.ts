@@ -42,7 +42,7 @@ export class PostsController {
 
   @Get(':id')
   getPost(@Param('id') id: string): ApiResponse {
-    const post = this.db.prepare('SELECT p.*, b.name as boardName, b.slug as boardSlug, COALESCE(u.nickname, u.username) as authorName FROM posts p LEFT JOIN boards b ON p.boardId = b.id LEFT JOIN users u ON p.authorId = u.id WHERE p.id = ?').get(id);
+    const post = this.db.prepare('SELECT p.*, p.authorId, b.name as boardName, b.slug as boardSlug, COALESCE(u.nickname, u.username) as authorName FROM posts p LEFT JOIN boards b ON p.boardId = b.id LEFT JOIN users u ON p.authorId = u.id WHERE p.id = ?').get(id);
     if (!post) return { code: 40400, message: '帖子不存在', data: null };
     this.db.prepare('UPDATE posts SET viewCount = viewCount + 1 WHERE id = ?').run(id);
     return { code: 0, message: 'ok', data: post };

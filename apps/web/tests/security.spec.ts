@@ -120,4 +120,42 @@ test.describe('Security', () => {
     });
     expect((await deleteRes.json()).code).toBe(0);
   });
+  test('verify-email page loads', async ({ page }) => {
+    const ts = Date.now();
+    const email = 've_' + ts + '@test.com';
+    const username = 'veuser_' + ts;
+    await page.request.post('http://localhost:3001/api/v1/auth/register', {
+      data: { email, username, password: 'Test123456' },
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const lr = await page.request.post('http://localhost:3001/api/v1/auth/login', {
+      data: { email, password: 'Test123456' },
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const at = (await lr.json()).data.accessToken;
+    await page.goto('/boards');
+    await page.evaluate((t) => localStorage.setItem('token', t), at);
+    await page.goto('/verify-email');
+    await page.waitForTimeout(300);
+  });
+
+  test('admin page blocked for non-admin', async ({ page }) => {
+    const ts2 = Date.now();
+    const email2 = 'na_' + ts2 + '@test.com';
+    const uname2 = 'nauser_' + ts2;
+    await page.request.post('http://localhost:3001/api/v1/auth/register', {
+      data: { email: email2, username: uname2, password: 'Test123456' },
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const lr2 = await page.request.post('http://localhost:3001/api/v1/auth/login', {
+      data: { email: email2, password: 'Test123456' },
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const at2 = (await lr2.json()).data.accessToken;
+    await page.goto('/boards');
+    await page.evaluate((t) => localStorage.setItem('token', t), at2);
+    await page.goto('/admin');
+    await page.waitForTimeout(500);
+    await expect(page.getByText(/权限不足/).first()).toBeVisible({ timeout: 5000 });
+  });
 });

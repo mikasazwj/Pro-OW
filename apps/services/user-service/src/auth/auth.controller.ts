@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Get, Body, HttpCode, HttpStatus, UseGuards, Req } from '@nestjs/common';
 import { IsString, IsEmail, MinLength, IsOptional } from 'class-validator';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -76,5 +76,14 @@ export class AuthController {
     if (req.user.role !== 'admin') return { code: 40300, message: '权限不足', data: null };
     const result = await this.authService.muteUser(dto.userId, dto.hours || 24);
     return { code: 0, message: 'ok', data: result };
+  }
+
+
+  @Get('admin/users')
+  @UseGuards(JwtAuthGuard)
+  async listUsers(@Req() req: { user: { role: string } }): Promise<ApiResponse> {
+    if (req.user.role !== 'admin') return { code: 40300, message: '权限不足', data: null };
+    const users = await this.authService.listUsers();
+    return { code: 0, message: 'ok', data: users };
   }
 }

@@ -8,6 +8,8 @@ import ProfileEditPage from './pages/ProfileEditPage';
 import FavoritesPage from './pages/FavoritesPage';
 import SearchPage from './pages/SearchPage';
 import NotificationsPage from './pages/NotificationsPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 
@@ -24,6 +26,8 @@ export default function App() {
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/admin" element={<AdminPage />} />
       </Route>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />

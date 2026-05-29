@@ -26,7 +26,7 @@ export class CommentsController {
     const page = query.page || 1;
     const pageSize = Math.min(query.pageSize || 50, 100);
     const offset = (page - 1) * pageSize;
-    const items = this.db.prepare("SELECT c.id, c.content, c.parentId, c.replyToId, c.replyToAuthorName, c.likeCount, c.createdAt, COALESCE(u.nickname, u.username) as authorName FROM comments c LEFT JOIN users u ON c.authorId = u.id WHERE c.postId = ? AND c.status = ? ORDER BY c.createdAt ASC LIMIT ? OFFSET ?").all(postId, 'published', pageSize, offset);
+    const items = this.db.prepare("SELECT c.id, c.content, c.parentId, c.authorId, c.replyToId, c.replyToAuthorName, c.likeCount, c.createdAt, COALESCE(u.nickname, u.username) as authorName FROM comments c LEFT JOIN users u ON c.authorId = u.id WHERE c.postId = ? AND c.status = ? ORDER BY c.createdAt ASC LIMIT ? OFFSET ?").all(postId, 'published', pageSize, offset);
     const { total } = this.db.prepare('SELECT COUNT(*) as total FROM comments WHERE postId = ? AND status = ?').get(postId, 'published') as { total: number };
     return { code: 0, message: 'ok', data: { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) } };
   }

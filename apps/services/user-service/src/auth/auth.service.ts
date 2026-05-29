@@ -95,4 +95,10 @@ export class AuthService {
     this.db.prepare('UPDATE users SET mutedUntil = ? WHERE id = ?').run(until, targetUserId);
     return { userId: targetUserId, mutedUntil: until };
   }
+
+
+  async listUsers() {
+    const users = this.db.prepare('SELECT id, username, email, nickname, role, status, isEmailVerified, mutedUntil FROM users ORDER BY createdAt DESC LIMIT 100').all();
+    return users;
+  }
 }
