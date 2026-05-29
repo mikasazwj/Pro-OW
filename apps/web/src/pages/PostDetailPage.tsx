@@ -27,37 +27,24 @@ export default function PostDetailPage() {
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(false);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     if (!id) return;
     contentApi.get<Post>("/posts/" + id).then(p => { setPost(p); setLikeCount(p.likeCount); setLoading(false); });
     contentApi.get<{ items: Comment[] }>("/posts/" + id + "/comments").then(d => setComments(d.items));
   }, [id]);
-
-  const like = async () => {
-    if (!isLoggedIn || !id) return;
-    try { const r = await socialApi.likePost(id); setLiked(r.liked); setLikeCount(r.likeCount); } catch {}
-  };
-
+  const like = async () => { if (!isLoggedIn || !id) return; try { const r = await socialApi.likePost(id); setLiked(r.liked); setLikeCount(r.likeCount); } catch {} };
   const submit = async () => {
     if (!text.trim() || !id) return;
-    try {
-      const r: { id: string } = await contentApi.post("/posts/" + id + "/comments", { content: text });
-      setComments(prev => [...prev, { id: r.id, content: text, authorName: "You", createdAt: new Date().toISOString() }]);
-      setText("");
-    } catch {}
+    try { const r: { id: string } = await contentApi.post("/posts/" + id + "/comments", { content: text }); setComments(prev => [...prev, { id: r.id, content: text, authorName: "我", createdAt: new Date().toISOString() }]); setText(""); } catch {}
   };
-
-  if (loading) return <div style={{ textAlign: "center", padding: 64, color: "var(--text-muted)" }}>Loading...</div>;
-  if (!post) return <div style={{ textAlign: "center", padding: 64, color: "var(--text-muted)" }}>Post not found</div>;
-
+  if (loading) return <div style={{ textAlign: "center", padding: 64, color: "var(--text-muted)" }}>加载中...</div>;
+  if (!post) return <div style={{ textAlign: "center", padding: 64, color: "var(--text-muted)" }}>帖子不存在</div>;
   return (
     <div style={s.container}>
       <Link to="/boards" style={s.back} onMouseOver={e => { e.currentTarget.style.background = "var(--bg-hover)"; }} onMouseOut={e => { e.currentTarget.style.background = "transparent"; }}>
         <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-        Back to boards
+        返回列表
       </Link>
-
       <article style={s.article}>
         <div style={{ marginBottom: 16 }}><span style={s.badge}>{post.boardName}</span></div>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--text-strong)", marginBottom: 18, lineHeight: 1.35, letterSpacing: "-0.3px" }}>{post.title}</h1>
@@ -65,7 +52,7 @@ export default function PostDetailPage() {
           <div style={s.avatar(post.authorName)}>{post.authorName?.[0]?.toUpperCase()}</div>
           <div>
             <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-strong)" }}>{post.authorName}</div>
-            <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>{new Date(post.createdAt).toLocaleDateString("zh-CN")} &middot; {post.viewCount} views</div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>{new Date(post.createdAt).toLocaleDateString("zh-CN")} · {post.viewCount} 次阅读</div>
           </div>
         </div>
         <div style={{ fontSize: 15, lineHeight: 1.8, color: "var(--text-body)", whiteSpace: "pre-wrap" }}>{post.content}</div>
@@ -76,19 +63,18 @@ export default function PostDetailPage() {
           </button>
         </div>
       </article>
-
       <section style={s.article}>
-        <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 20 }}>Comments {comments.length}</h2>
+        <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 20 }}>评论 {comments.length}</h2>
         {isLoggedIn && (
           <div style={{ marginBottom: 24 }}>
-            <textarea style={s.input} rows={3} value={text} onChange={e => setText(e.target.value)} placeholder="Write a comment..." onFocus={e => { e.currentTarget.style.borderColor = "var(--ow-orange)"; }} onBlur={e => { e.currentTarget.style.borderColor = "var(--border)"; }} />
+            <textarea style={s.input} rows={3} value={text} onChange={e => setText(e.target.value)} placeholder="写下你的评论..." onFocus={e => { e.currentTarget.style.borderColor = "var(--ow-orange)"; }} onBlur={e => { e.currentTarget.style.borderColor = "var(--border)"; }} />
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
-              <button onClick={submit} disabled={!text.trim()} style={{ ...s.btn, background: text.trim() ? "var(--ow-orange)" : "var(--bg-hover)", color: text.trim() ? "#fff" : "var(--text-muted)", border: "none", boxShadow: text.trim() ? "0 2px 8px rgba(240,100,36,0.3)" : "none" }}>Post</button>
+              <button onClick={submit} disabled={!text.trim()} style={{ ...s.btn, background: text.trim() ? "var(--ow-orange)" : "var(--bg-hover)", color: text.trim() ? "#fff" : "var(--text-muted)", border: "none", boxShadow: text.trim() ? "0 2px 8px rgba(240,100,36,0.3)" : "none" }}>发布评论</button>
             </div>
           </div>
         )}
         {comments.length === 0 ? (
-          <div style={{ textAlign: "center", padding: 36, color: "var(--text-muted)", fontSize: 13 }}>No comments yet</div>
+          <div style={{ textAlign: "center", padding: 36, color: "var(--text-muted)", fontSize: 13 }}>还没有评论</div>
         ) : (
           comments.map(c => (
             <div key={c.id} style={s.comment}>
