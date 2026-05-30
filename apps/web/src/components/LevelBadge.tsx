@@ -10,7 +10,8 @@ const levelConfig: Record<string, { color: string; bg: string }> = {
 };  
   
 export default function LevelBadge({ level, exp }: { level?: string; exp?: number }) {  
-  if (!level) return null;  
+  if (!level) return null;
+  const cfg = levelConfig[level] || levelConfig.Bronze;  
   return (  
     <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 10px", borderRadius: 8, fontSize: 12, fontWeight: 600, color: cfg.color, background: cfg.bg, border: `1px solid ${cfg.color}33` }}>  
       {level} {exp !== undefined && (<span style={{ opacity: 0.7, fontSize: 11 }}>{exp} XP</span>)}  
