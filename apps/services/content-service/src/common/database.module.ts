@@ -45,6 +45,8 @@ export class DatabaseModule implements OnModuleInit {
     try { db.exec("ALTER TABLE comments ADD COLUMN replyToAuthorName TEXT"); } catch {}
     try { db.exec("ALTER TABLE users ADD COLUMN exp INTEGER DEFAULT 0"); } catch {}
     try { db.exec("ALTER TABLE users ADD COLUMN level TEXT DEFAULT 'Bronze'"); } catch {}
+    try { db.exec("ALTER TABLE users ADD COLUMN dailyExp INTEGER DEFAULT 0"); } catch {}
+    try { db.exec("ALTER TABLE users ADD COLUMN dailyExpDate TEXT"); } catch {}
     // FTS5 for search
     try { db.exec("CREATE VIRTUAL TABLE IF NOT EXISTS posts_fts USING fts5(title, content, content='posts', content_rowid='rowid')"); } catch {}
     // Triggers to keep FTS in sync

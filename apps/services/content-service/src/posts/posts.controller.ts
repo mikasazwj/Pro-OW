@@ -3,7 +3,7 @@ import { IsString, IsOptional, IsIn, MinLength, MaxLength } from 'class-validato
 import Database from 'better-sqlite3';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { filterContent, checkRateLimit, calculateLevel } from '../common/content-filter';
+import { filterContent, checkRateLimit, calculateLevel, awardExp } from '../common/content-filter';
 import type { ApiResponse } from '@pro-ow/shared';
 
 class CreatePostDto {
@@ -66,6 +66,8 @@ export class PostsController {
 
     const id = uuidv4();
     this.db.prepare('INSERT INTO posts (id, boardId, authorId, title, content, status) VALUES (?, ?, ?, ?, ?, ?)').run(id, dto.boardId, userId, filteredTitle, filteredContent, 'published');
+    // Award exp (+5)
+    awardExp(this.db, userId, 'post', 5);
     const authorName = nickname || username;
     return { code: 0, message: hasFiltered ? '发布成功（含敏感词已过滤）' : '发布成功', data: { id, authorName } };
   }

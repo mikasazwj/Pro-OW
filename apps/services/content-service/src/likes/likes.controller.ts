@@ -2,7 +2,7 @@
 import { IsIn, IsOptional } from 'class-validator';
 import Database from 'better-sqlite3';
 import { v4 as uuidv4 } from 'uuid';
-import { calculateLevel } from '../common/content-filter';
+import { awardExp, calculateLevel } from '../common/content-filter';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { ApiResponse } from '@pro-ow/shared';
 
@@ -48,6 +48,17 @@ export class LikesController {
       this.db.prepare('DELETE FROM likes WHERE id = ?').run((existing as { id: string }).id);
     } else {
       this.db.prepare('INSERT INTO likes (id, userId, targetType, targetId) VALUES (?, ?, ?, ?)').run(uuidv4(), userId, targetType, targetId);
+      // Award +1 exp to post author when liked
+      if (targetType === 'post') {
+        try {
+          const post = this.db.prepare('SELECT authorId FROM posts WHERE id = ?').get(targetId) as any;
+          if (post && post.authorId !== userId) {
+            const ur = this.db.prepare('SELECT exp FROM users WHERE id = ?').get(post.authorId) as any;
+            const ne = (ur?.exp || 0) + 1;
+            this.db.prepare('UPDATE users SET exp = ?, level = ? WHERE id = ?').run(ne, calculateLevel(ne), post.authorId);
+          }
+        } catch {}
+      }
       // Award +1 exp to post author when liked
       if (targetType === 'post') {
         try {

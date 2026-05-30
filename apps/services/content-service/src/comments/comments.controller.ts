@@ -3,7 +3,7 @@ import { IsString, IsOptional, MinLength } from 'class-validator';
 import Database from 'better-sqlite3';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { filterContent, checkRateLimit, calculateLevel } from '../common/content-filter';
+import { filterContent, checkRateLimit, calculateLevel, awardExp } from '../common/content-filter';
 import type { ApiResponse } from '@pro-ow/shared';
 
 class CreateCommentDto {
@@ -46,6 +46,8 @@ export class CommentsController {
     const id = uuidv4();
     this.db.prepare('INSERT INTO comments (id, postId, authorId, parentId, replyToId, replyToAuthorName, content) VALUES (?, ?, ?, ?, ?, ?, ?)').run(id, postId, userId, dto.parentId || null, dto.replyToId || null, dto.replyToAuthorName || null, filtered);
     this.db.prepare('UPDATE posts SET commentCount = commentCount + 1 WHERE id = ?').run(postId);
+    // Award exp (+2)
+    awardExp(this.db, userId, 'comment', 2);
 
     const postAuthor = this.db.prepare('SELECT authorId, title FROM posts WHERE id = ?').get(postId) as { authorId: string; title: string } | undefined;
     const authorName = nickname || username;
