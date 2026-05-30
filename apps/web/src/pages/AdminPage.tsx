@@ -124,8 +124,8 @@ export default function AdminPage() {
                     {u.status === 'banned' ? (
                       <span style={S.badge('var(--red)')}>已封禁</span>
                     ) : u.mutedUntil && new Date(u.mutedUntil) > new Date() ? (
-                      <span style={S.badge('#f59e0b')}>禁言至 {new Date(u.mutedUntil).toLocaleString('zh-CN')}</span>
-                    <button onClick={() => muteUser(u.id, 0)} style={{ ...S.btn, background: '#16a34a', color: '#fff' }}>解除禁言</button>
+                      <><span style={S.badge('#f59e0b')}>禁言至 {new Date(u.mutedUntil).toLocaleString('zh-CN')}</span>
+                    <button onClick={() => muteUser(u.id, 0)} style={{ ...S.btn, background: '#16a34a', color: '#fff' }}>解除禁言</button></>
                     ) : (
                       <span style={S.badge('#16a34a')}>正常</span>
                     )}
