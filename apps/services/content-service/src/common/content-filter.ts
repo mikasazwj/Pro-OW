@@ -17,6 +17,17 @@ export function filterContent(text: string): { filtered: string; hasFiltered: bo
 // Simple in-memory rate limiter
 const rateMap = new Map<string, number[]>();
 
+export function calculateLevel(exp: number): string {
+  if (exp >= 3000) return 'Top500';
+  if (exp >= 2200) return 'Grandmaster';
+  if (exp >= 1500) return 'Master';
+  if (exp >= 1000) return 'Diamond';
+  if (exp >= 600) return 'Platinum';
+  if (exp >= 300) return 'Gold';
+  if (exp >= 100) return 'Silver';
+  return 'Bronze';
+}
+
 export function checkRateLimit(userId: string, action: string, maxCount: number, windowMs: number): boolean {
   const key = userId + ':' + action;
   const now = Date.now();

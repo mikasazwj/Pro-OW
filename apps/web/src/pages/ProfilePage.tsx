@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { userApi, contentApi, socialApi } from '../lib/api';
+import LevelBadge from '../components/LevelBadge';
 
 interface Profile { id: string; username: string; nickname: string | null; bio: string | null; avatarUrl: string | null; role: string; createdAt: string; }
 interface Post { id: string; title: string; summary: string; boardName: string; likeCount: number; commentCount: number; createdAt: string; }
@@ -27,6 +28,7 @@ export default function ProfilePage() {
   const [following, setFollowing] = useState(false);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+  const [userStats, setUserStats] = useState<any>(null);
   const isOwnProfile = user?.id === profile?.id;
 
   useEffect(() => {
@@ -37,12 +39,14 @@ export default function ProfilePage() {
       contentApi.get<{ items: Comment[] }>('/comments?authorId=' + user!.id + '&pageSize=50'),
       socialApi.getFollowers(user!.id),
       socialApi.getFollowing(),
-    ]).then(([p, postsData, commentsData, followersData, followingData]) => {
+      socialApi.getUserStats(user!.id),
+    ]).then(([p, postsData, commentsData, followersData, followingData, statsData]) => {
       setProfile(p);
       setPosts((postsData as { items: Post[] }).items);
       setComments((commentsData as { items: Comment[] }).items);
       setFollowerCount((followersData as { items: unknown[] }).items.length);
       setFollowingCount((followingData as { items: unknown[] }).items.length);
+      if (statsData) setUserStats(statsData);
       setFollowing((followingData as { items: { id: string }[] }).items.some(f => f.id === p.id));
     }).finally(() => setLoading(false));
   }, [isLoggedIn, user?.id]);

@@ -35,7 +35,7 @@ async function request<T>(baseUrl: string, endpoint: string, options?: RequestIn
     if (newToken) return request<T>(baseUrl, endpoint, options, false);
   }
   
-  if (!res.ok || json.code !== 0) throw new Error(json.message || '请求失败');
+  if (!res.ok || json.code !== 0) throw new Error(json.message || '璇锋眰澶辫触');
   return json.data;
 }
 
@@ -73,6 +73,8 @@ export const socialApi = {
   getFollowers: (userId: string) => request<{ items: { id: string; username: string }[] }>(CONTENT_API, '/follows/followers/' + userId),
   getFollowing: () => request<{ items: { id: string; username: string }[] }>(CONTENT_API, '/follows/following'),
   search: (q: string) => request<{ items: unknown[]; total: number }>(CONTENT_API, '/search?q=' + encodeURIComponent(q)),
+ getUserStats: (id: string) => request<{ id: string; username: string; nickname: string | null; exp: number; level: string; postCount: number; commentCount: number; likeReceived: number }>(CONTENT_API, '/users/' + id + '/stats'),
+ getLeaderboard: () => request<Array<{ id: string; username: string; nickname: string | null; exp: number; level: string; postCount: number; commentCount: number }>>(CONTENT_API, '/leaderboard'),
   deletePost: (id: string) => request<null>(CONTENT_API, '/posts/' + id, { method: 'DELETE' }),
   deleteComment: (postId: string, commentId: string) => request<null>(CONTENT_API, '/posts/' + postId + '/comments/' + commentId, { method: 'DELETE' }),
 };

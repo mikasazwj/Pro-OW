@@ -9,6 +9,7 @@ import FavoritesPage from './pages/FavoritesPage';
 import SearchPage from './pages/SearchPage';
 import NotificationsPage from './pages/NotificationsPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
+import LeaderboardPage from "./pages/LeaderboardPage";
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/admin" element={<AdminPage />} />
       </Route>
       <Route path="/login" element={<LoginPage />} />

@@ -25,6 +25,7 @@ export default function AppLayout() {
           </Link>
           <nav style={{ display: 'flex', gap: 4, flex: 1 }}>
             <Link to="/boards" style={{ padding: '8px 16px', borderRadius: 10, fontSize: 15, fontWeight: isActive('/boards') ? 600 : 500, color: isActive('/boards') ? 'var(--ow-orange)' : 'var(--text-soft)', background: isActive('/boards') ? 'var(--ow-orange-ghost)' : 'transparent', textDecoration: 'none', transition: 'all .15s' }}>广场</Link>
+            <Link to="/leaderboard" style={{ padding: "8px 16px", borderRadius: 10, fontSize: 15, fontWeight: isActive("/leaderboard") ? 600 : 500, color: isActive("/leaderboard") ? "var(--ow-orange)" : "var(--text-soft)", background: isActive("/leaderboard") ? "var(--ow-orange-ghost)" : "transparent", textDecoration: "none", transition: "all .15s" }}>排行榜</Link>
           </nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {isLoggedIn && (

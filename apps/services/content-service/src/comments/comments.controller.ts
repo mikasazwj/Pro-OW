@@ -3,7 +3,7 @@ import { IsString, IsOptional, MinLength } from 'class-validator';
 import Database from 'better-sqlite3';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { filterContent, checkRateLimit } from '../common/content-filter';
+import { filterContent, checkRateLimit, calculateLevel } from '../common/content-filter';
 import type { ApiResponse } from '@pro-ow/shared';
 
 class CreateCommentDto {
@@ -41,7 +41,7 @@ export class CommentsController {
 
     const { filtered } = filterContent(dto.content);
     const { userId, username, nickname } = req.user;
-    this.db.prepare('INSERT OR REPLACE INTO users (id, username, nickname) VALUES (?, ?, ?)').run(userId, username, nickname);
+    this.db.prepare('INSERT OR IGNORE INTO users (id, username, nickname) VALUES (?, ?, ?)').run(userId, username, nickname);
 
     const id = uuidv4();
     this.db.prepare('INSERT INTO comments (id, postId, authorId, parentId, replyToId, replyToAuthorName, content) VALUES (?, ?, ?, ?, ?, ?, ?)').run(id, postId, userId, dto.parentId || null, dto.replyToId || null, dto.replyToAuthorName || null, filtered);

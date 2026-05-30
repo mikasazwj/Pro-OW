@@ -32,6 +32,8 @@ export class DatabaseModule implements OnModuleInit {
     try { db.exec('ALTER TABLE users ADD COLUMN bio TEXT'); } catch {}
     try { db.exec('ALTER TABLE users ADD COLUMN isEmailVerified INTEGER DEFAULT 0'); } catch {}
     try { db.exec('ALTER TABLE users ADD COLUMN mutedUntil TEXT'); } catch {}
+    try { db.exec('ALTER TABLE users ADD COLUMN exp INTEGER DEFAULT 0'); } catch {}
+    try { db.exec("ALTER TABLE users ADD COLUMN level TEXT DEFAULT 'Bronze'"); } catch {}
     db.close();
     console.log('SQLite database initialized');
   }

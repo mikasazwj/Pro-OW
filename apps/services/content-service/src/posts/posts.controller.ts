@@ -3,7 +3,7 @@ import { IsString, IsOptional, IsIn, MinLength, MaxLength } from 'class-validato
 import Database from 'better-sqlite3';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { filterContent, checkRateLimit } from '../common/content-filter';
+import { filterContent, checkRateLimit, calculateLevel } from '../common/content-filter';
 import type { ApiResponse } from '@pro-ow/shared';
 
 class CreatePostDto {
@@ -62,7 +62,7 @@ export class PostsController {
     const { filtered: filteredContent, hasFiltered } = filterContent(dto.content);
 
     const { userId, username, nickname } = req.user;
-    this.db.prepare('INSERT OR REPLACE INTO users (id, username, nickname) VALUES (?, ?, ?)').run(userId, username, nickname);
+    this.db.prepare('INSERT OR IGNORE INTO users (id, username, nickname) VALUES (?, ?, ?)').run(userId, username, nickname);
 
     const id = uuidv4();
     this.db.prepare('INSERT INTO posts (id, boardId, authorId, title, content, status) VALUES (?, ?, ?, ?, ?, ?)').run(id, dto.boardId, userId, filteredTitle, filteredContent, 'published');

@@ -9,6 +9,7 @@ import { LikesController } from './likes/likes.controller';
 import { FavoritesController } from './favorites/favorites.controller';
 import { FollowsController } from './follows/follows.controller';
 import { SearchController } from './search/search.controller';
+import { UsersController } from './users/users.controller';
 import { NotificationsController } from './notifications/notifications.controller';
 
 @Module({
@@ -16,7 +17,7 @@ import { NotificationsController } from './notifications/notifications.controlle
   controllers: [
     BoardsController, PostsController, CommentsController, UserCommentsController,
     LikesController, FavoritesController, FollowsController, SearchController,
-    NotificationsController,
+    NotificationsController, UsersController,
   ],
 })
 export class AppModule {}

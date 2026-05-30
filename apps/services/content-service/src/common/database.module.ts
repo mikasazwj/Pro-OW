@@ -13,7 +13,7 @@ export class DatabaseModule implements OnModuleInit {
   onModuleInit() {
     const db = new Database(DB_PATH);
     db.exec(`
-      CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, username TEXT NOT NULL, nickname TEXT, createdAt TEXT DEFAULT (datetime('now')));
+      CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, username TEXT NOT NULL, nickname TEXT, exp INTEGER DEFAULT 0, level TEXT DEFAULT 'Bronze', createdAt TEXT DEFAULT (datetime('now')));
       CREATE TABLE IF NOT EXISTS boards (id TEXT PRIMARY KEY, name TEXT NOT NULL, slug TEXT UNIQUE NOT NULL, description TEXT, parentId TEXT, sortOrder INTEGER DEFAULT 0);
       CREATE TABLE IF NOT EXISTS posts (
         id TEXT PRIMARY KEY, boardId TEXT NOT NULL, authorId TEXT NOT NULL, title TEXT NOT NULL, content TEXT NOT NULL,
@@ -43,6 +43,8 @@ export class DatabaseModule implements OnModuleInit {
     try { db.exec("ALTER TABLE posts ADD COLUMN favoriteCount INTEGER DEFAULT 0"); } catch {}
     try { db.exec("ALTER TABLE comments ADD COLUMN replyToId TEXT"); } catch {}
     try { db.exec("ALTER TABLE comments ADD COLUMN replyToAuthorName TEXT"); } catch {}
+    try { db.exec("ALTER TABLE users ADD COLUMN exp INTEGER DEFAULT 0"); } catch {}
+    try { db.exec("ALTER TABLE users ADD COLUMN level TEXT DEFAULT 'Bronze'"); } catch {}
     // FTS5 for search
     try { db.exec("CREATE VIRTUAL TABLE IF NOT EXISTS posts_fts USING fts5(title, content, content='posts', content_rowid='rowid')"); } catch {}
     // Triggers to keep FTS in sync
